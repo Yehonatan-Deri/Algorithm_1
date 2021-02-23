@@ -1,1 +1,2 @@
-print("sambusak")
+import dynamic
+import graph
