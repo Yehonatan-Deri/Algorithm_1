@@ -43,14 +43,14 @@ class List:
         self.n += 1
         if self.head is None:
             self.head = self.last = other
-        if add_to_end:
-            other.prev = self.last
-            self.last.next = other
-            self.last = other
-        else:
+        elif add_to_end:
             other.next = self.head
             self.head.prev = other
             self.head = other
+        else:
+            other.prev = self.last
+            self.last.next = other
+            self.last = other
         return self
 
     @staticmethod
@@ -60,8 +60,6 @@ class List:
         l = List()
         for item in array:
             l += Node(item)
-            # p.next = Node(item, prev=p)
-            # p = p.next
         return l
 
 
@@ -69,6 +67,6 @@ if __name__ == '__main__':
     a = [1, 3, 4]
     l = List(7)
     lis = List.create_list(a)
-    n1 = Node(4)
+    n1 = Node(8)
     lis += n1
     print(lis)
