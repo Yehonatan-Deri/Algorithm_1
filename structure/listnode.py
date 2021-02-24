@@ -5,12 +5,6 @@ class Node:
     def __str__(self) -> str:
         return f'data: {self.data}, prev: {None if self.prev is None else self.prev.data}, next: {None if self.next is None else self.next.data}'
 
-    # def __deepcopy__(self, memodict={}):
-    #     return copy.deepcopy(self)
-    #
-    # def __copy__(self):
-    #     pass
-
 
 class List:
     def __init__(self, head=None, last=None, name=None, other=None):
@@ -76,7 +70,7 @@ if __name__ == '__main__':
     lis = List.create_list([3, 4, 7, 8, 9])
     print(lis)
     n1 = Node(data=8)
-    lis += n1
+    lis.head = n1
     print(lis)
     #
     # lis1 = copy.deepcopy(lis)

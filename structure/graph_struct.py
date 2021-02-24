@@ -1,8 +1,6 @@
-import listnode
 import copy
 
 
-# import dllist
 class Rainbow:
 
     def __init__(self, from_, to, weight=1) -> None:
@@ -10,26 +8,28 @@ class Rainbow:
         # Kodkod.connect(self)
 
     def __str__(self):
-        return f'({self.from_.name}->{self.to.name},w={self.weight}'
+        return f'({self.from_.name}->{self.to.name},w={self.weight})'
+
+    def __repr__(self):
+        return f'({self.from_.name}->{self.to.name},w={self.weight})'
 
 
 class Kodkod():
     def __init__(self, name=None, data=None, Adj=None, rainbow=None):
-        if rainbow is None:
-            rainbow = []
-        if Adj is None:
-            Adj = []
         self.name, self.data, self.Adj, self.rainbow = name, data, Adj, rainbow
+        self.Adj = Adj if Adj else []
+        self.rainbow = rainbow if rainbow else []
 
     def connect(self, v=None, weight=1, e=None):
         if e:
             if e.to not in self.Adj:
-                self.Adj += e.to
-                self.rainbow += e
+                self.Adj.append(e.to)
+                self.rainbow.append(e)
         elif v:
-            self.Adj += v
-            e = Rainbow(self, v, weight=weight)
-            self.rainbow += e
+            if v not in self.Adj:
+                self.Adj.append(v)
+                e = Rainbow(self, v, weight=weight)
+                self.rainbow.append(e)
         return e
 
     def disconnect(self, v):
@@ -42,12 +42,13 @@ class Kodkod():
         return v in self.Adj
 
     def __str__(self) -> str:
-        return f'name: {self.name}, Adj: {self.Adj}'
-    #
-    # @staticmethod
-    # def connect(e):
-    #     e.ffrom.Adj += e.to.Adj
-    #     e.ffrom.rainbow.
+        return f'name: {self.name}, Adj: {self.Adj}, rainbow: {self.rainbow}'
+
+    def __repr__(self) -> str:
+        return f'(name: {self.name}, Adj: {self.Adj}, rainbow: {self.rainbow})'
+
+    # def Adj_str(self):
+    #     return '[' + ','.join([v.name for v in self.Adj]) + ']'
 
 
 class KodkodDFS(Kodkod):
@@ -67,28 +68,67 @@ class KodkodBFS(Kodkod):
 class Graph:
 
     def __init__(self, E=None, V=None) -> None:
-        if V is None:
-            V = []
-        if E is None:
-            E = []
+        # if V is None:
+        #     V = []
+        # if E is None:
+        #     E = []
         self.E, self.V = E, V
 
     def connect(self, from_=None, to=None, weight=1, e=None):
         if e:
-            if e not in self.E:
-                self.E += e
-                e.from_.connect(e)
+            from_, to, weight = e.from_, e.to, e.weight
         else:
-            self.E += from_.connect(from_=from_, to=to, weight=weight)
-            from_.connect(to)
-        if e.from_ not in self.V:
-            self.V += e.from_
-        if e.to not in self.V:
-            self.V += e.to
+            e = from_.connect(v=to, weight=weight)
+        from_.connect(v=to, weight=weight)
+        if e not in self.E:
+            self.E.append(e)
+        if from_ not in self.V:
+            self.V.append(from_)
+        if to not in self.V:
+            self.V.append(to)
 
+    def __str__(self):
+        s = '------------------  graph  -----------------\n'
+        s += 'V=[' + ','.join([v.name for v in self.V]) + ']\n'
+        s += 'E=' + ','.join([str(e) for e in self.E]) + '\n'
+        s += '|V|={} |E|={}'.format(len(self.V), len(self.E)) + '\n'
+        s += '--------------------------------------------'
+        return s
 
-# def __add__(self, v):
-#     self.V += v
+    def transpose(self):
+        G = Graph()
+        G.V = [Kodkod(name=v.name, data=v.data) for v in self.V]
+        G.E = [Rainbow(G.V[self.V.index(e.to)], G.V[self.V.index(e.from_)], weight=e.weight) for e in self.E]
+        # G.V = V
+        # G.E = E
+        # for e in G.E:
+        #     G.connect(e=e)
+        return G
+
+    @property
+    def V(self):
+        return self.__V
+
+    @V.setter
+    def V(self, V):
+        self.__V = V if V is not None else []
+
+    # if V is None:
+    #     self.__V = []
+    # else:
+    #     self.__V = extend([v for v in V if v not in self.__V])
+
+    @property
+    def E(self):
+        return self.__E
+
+    @E.setter
+    def E(self, E):
+        self.__E = E if E is not None else []
+        if not E:
+            return
+        for e in E:
+            self.connect(e=e)
 
 
 class GraphAimed:
@@ -107,13 +147,16 @@ class GraphNotAimed(Graph):
         else:
             super().connect(from_=to, to=from_, weight=weight)
 
-    def transpose(self):
-        G = Graph(V=copy.deepcopy(self.V))
-        for e in self.E:
-            G.connect(from_=e.to, to=e.from_, weight=e.weight)
-
-        return G
-
 
 if __name__ == '__main__':
-    G = Graph()
+    V = [Kodkod(name=str(i)) for i in range(10)]
+    r = Rainbow(from_=V[0], to=V[1], weight=3)
+    # # print(V[0])
+    #
+    G = Graph(V=V)
+    G.connect(from_=V[1], to=V[2], weight=1)
+    G.connect(from_=V[2], to=V[1], weight=1)
+    G.connect(e=r)
+    print(G)
+    print(G.transpose())
+    # print(V[1].Adj_str())
