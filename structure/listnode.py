@@ -1,18 +1,23 @@
 class Node:
-    def __init__(self, data=None, prev=None, next=None):
-        self.data = data
-        self.prev = prev
-        self.next = next
+    def __init__(self, name=None, data=None, prev=None, next=None):
+        self.name = name, self.data, self.prev, self.next = name, data, prev, next
 
     def __str__(self) -> str:
         return f'data: {self.data}, prev: {None if self.prev is None else self.prev.data}, next: {None if self.next is None else self.next.data}'
 
+    # def __deepcopy__(self, memodict={}):
+    #     pass
+    #
+    # def __copy__(self):
+    #     pass
+
 
 class List:
-    def __init__(self, head=None, last=None, other=None):
-        self.head = head
-        self.last = last
-        self.n = 0
+    def __init__(self, head=None, last=None, name=None, other=None):
+        if other:  # copy constructor
+            pass
+        else:
+            self.head, self.last, self.name, self.n = head, last, name, 0
 
     @property
     def head(self):
@@ -64,9 +69,23 @@ class List:
 
 
 if __name__ == '__main__':
+    import copy
+
     a = [1, 3, 4]
-    l = List(7)
-    lis = List.create_list(a)
-    n1 = Node(8)
+    # # l = List(7)
+    lis = List.create_list([3, 4, 7, 8, 9])
+    print(lis)
+    n1 = Node(data=8)
     lis += n1
     print(lis)
+    #
+    # lis1 = copy.deepcopy(lis)
+    # print(lis1)
+
+    # xs = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+    # zs = copy.deepcopy(xs)
+    # print(xs)
+    # zs[1] = 1
+    # print('after:\n')
+    # print(xs)
+    # print(zs)
