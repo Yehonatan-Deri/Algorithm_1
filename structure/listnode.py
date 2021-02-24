@@ -6,7 +6,7 @@ class Node:
         return f'data: {self.data}, prev: {None if self.prev is None else self.prev.data}, next: {None if self.next is None else self.next.data}'
 
     # def __deepcopy__(self, memodict={}):
-    #     pass
+    #     return copy.deepcopy(self)
     #
     # def __copy__(self):
     #     pass
