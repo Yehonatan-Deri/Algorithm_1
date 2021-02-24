@@ -1,15 +1,16 @@
 import listnode
+import copy
 
 
 # import dllist
 class Rainbow:
 
-    def __init__(self, ffrom, to, weight=1) -> None:
-        self.ffrom, self.to, self.weight = ffrom, to, weight
+    def __init__(self, from_, to, weight=1) -> None:
+        self.from_, self.to, self.weight = from_, to, weight
         # Kodkod.connect(self)
 
     def __str__(self):
-        return f'({self.ffrom.name}->{self.to.name},w={self.weight}'
+        return f'({self.from_.name}->{self.to.name},w={self.weight}'
 
 
 class Kodkod():
@@ -72,16 +73,16 @@ class Graph:
             E = []
         self.E, self.V = E, V
 
-    def connect(self, ffrom=None, to=None, weight=1, e=None):
+    def connect(self, from_=None, to=None, weight=1, e=None):
         if e:
             if e not in self.E:
                 self.E += e
-                e.ffrom.connect(e)
+                e.from_.connect(e)
         else:
-            self.E += ffrom.connect(ffrom=ffrom, to=to, weight=weight)
-            ffrom.connect(to)
-        if e.ffrom not in self.V:
-            self.V += e.ffrom
+            self.E += from_.connect(from_=from_, to=to, weight=weight)
+            from_.connect(to)
+        if e.from_ not in self.V:
+            self.V += e.from_
         if e.to not in self.V:
             self.V += e.to
 
@@ -99,15 +100,20 @@ class GraphNotAimed(Graph):
     def __init__(self, E=None, V=None) -> None:
         super().__init__(E, V)
 
-    def connect(self, ffrom=None, to=None, weight=1, e=None):
-        super().connect(ffrom, to, weight, e)
+    def connect(self, from_=None, to=None, weight=1, e=None):
+        super().connect(from_, to, weight, e)
         if e:
-            e.to.connect(v=ffrom, weight=e.weight)
+            e.to.connect(v=from_, weight=e.weight)
         else:
-            super().connect(ffrom=to, to=ffrom, weight=weight)
+            super().connect(from_=to, to=from_, weight=weight)
+
+    def transpose(self):
+        G = Graph(V=copy.deepcopy(self.V))
+        for e in self.E:
+            G.connect(from_=e.to, to=e.from_, weight=e.weight)
+
+        return G
 
 
 if __name__ == '__main__':
-    a = ['a', 'b']
-    a.remove('d')
-    print(a)
+    G = Graph()
