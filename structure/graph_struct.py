@@ -51,18 +51,18 @@ class Kodkod():
     #     return '[' + ','.join([v.name for v in self.Adj]) + ']'
 
 
-class KodkodDFS(Kodkod):
-
-    def __init__(self, name=None, data=None, pi=None, color=None, i=None, f=None, d=None):
-        super().__init__(name, data)
-        self.pi, self.color, self.i, self.d, self.f = pi, color, i, d, f
-
-
-class KodkodBFS(Kodkod):
-
-    def __init__(self, name=None, data=None, pi=None, color=None, i=None, layer=None):
-        super().__init__(name, data)
-        self.pi, self.color, self.i, self.layer = pi, color, i, layer
+# class KodkodDFS(Kodkod):
+#
+#     def __init__(self, name=None, data=None, pi=None, color=None, i=None, f=None, d=None):
+#         super().__init__(name, data)
+#         self.pi, self.color, self.i, self.d, self.f = pi, color, i, d, f
+#
+#
+# class KodkodBFS(Kodkod):
+#
+#     def __init__(self, name=None, data=None, pi=None, color=None, i=None, layer=None):
+#         super().__init__(name, data)
+#         self.pi, self.color, self.i, self.layer = pi, color, i, layer
 
 
 class Graph:
@@ -126,8 +126,8 @@ class Graph:
             self.connect(e=e)
 
 
-class GraphAimed:
-    pass
+# class GraphAimed:
+#     pass
 
 
 class GraphNotAimed(Graph):

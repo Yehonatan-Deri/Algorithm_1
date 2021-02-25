@@ -1,10 +1,15 @@
 import copy
+import numpy as np
+import operator
 
 
 class BinaryHeap:
+    """
+    @compare: define function for compare: max() for heap max or min() for heap mean
+    """
 
-    def __init__(self, arr=None, max_=True) -> None:
-        self.max_, self.arr = max_, arr
+    def __init__(self, arr=None, compare=max) -> None:
+        self.compare, self.arr = compare, arr
 
     def father(self, i):
         if i < 0 or i >= len(self.arr) - 1:
@@ -53,87 +58,52 @@ class BinaryHeap:
         if not arr:
             self.__arr = []
             return
-        self.__arr = copy.deepcopy(arr)
+        self.__arr = copy.copy(arr)
         for i in range(len(arr) // 2, -1, -1):
             self.heapify_down(i)
 
     # efficiency: O(log n)
     def heapify_up(self, i):
-        if self.max_:
-            while i > 0:
-                father = self.father(i)
-                self.arr[i], self.arr[father], i = min(self.arr[i], self.arr[father]), max(self.arr[i],
-                                                                                           self.arr[father]), father
-        else:
-            while i > 0:
-                father = self.father(i)
-                self.arr[i], self.arr[father], i = max(self.arr[i], self.arr[father]), min(self.arr[i],
-                                                                                           self.arr[father]), father
+        while i > 0:
+            i_max = self.arr.index(self.compare(self.arr[i], self.arr[self.father(i)]))
+            if i != i_max:
+                self.arr[i], self.arr[self.father(i)], i = self.arr[self.father(i)], self.arr[i], i_max
+            else:
+                return
 
     # efficiency: O(log n)
     def heapify_down(self, i):
-        if self.max_:  # True or
-            while i < len(self.arr) // 2:
-                left, right = self.left(i), self.right(i)
-                max_val = i if self.arr[i] > self.arr[left] else left
-                self.arr[i], self.arr[left] = max(self.arr[i], self.arr[left]), min(self.arr[i], self.arr[left])
-                if right:
-                    max_val = max_val if self.arr[i] > self.arr[right] else right
-                    self.arr[i], self.arr[right] = max(self.arr[i], self.arr[right]), min(self.arr[i], self.arr[right])
-                if i == max_val:
-                    break
-                else:
-                    i = max_val
-        else:
-            while i < len(self.arr) // 2:
-                left, right = self.left(i), self.right(i)
-                min_val = i if self.arr[i] < self.arr[left] else left
-                self.arr[i], self.arr[left] = min(self.arr[i], self.arr[left]), max(self.arr[i], self.arr[left])
-                if right:
-                    min_val = min_val if self.arr[i] < self.arr[right] else right
-                    self.arr[i], self.arr[right] = min(self.arr[i], self.arr[right]), max(self.arr[i], self.arr[right])
-                if i == min_val:
-                    break
-                else:
-                    i = min_val
+        while i < len(self.arr) // 2:
+            r, l = self.left(i), self.right(i)  # indexes of right and left suns
+            i_max = self.arr.index(self.compare([self.arr[x] for x in [i, r, l] if x is not False]))
+            if i_max != i:
+                self.arr[i], self.arr[i_max], i = self.arr[i_max], self.arr[i], i_max
+            else:
+                return
 
     @staticmethod
-    def is_heap(h, max_=True):
-        h_ = BinaryHeap(max_=max_)
-        h_.arr, h_.n = h, len(h)
-        if max_:
-            for father in range(len(h) // 2):
-                if h_.arr[father] < h_.arr[h_.left(father)] or (
-                        h_.right(father) and h_.arr[father] < h_.arr[h_.left(father)]):
-                    return False
-        else:
-            for father in range(len(h) // 2):
-                if h_.arr[father] > h_.arr[h_.left(father)] or (
-                        h_.right(father) < h_.n and h_.arr[father] > h_.arr[h_.left(father)]):
-                    return False
+    def is_heap(arr, compare=max):
+        for father in range(len(arr) // 2):
+            l, r = father * 2 + 1, father * 2 + 2 if father * 2 + 2 < len(arr) else False
+            if compare([arr[x] for x in [father, r, l] if x is not False]) != arr[father]:
+                return False
         return True
 
     # efficiency: O(nlog n)
     @staticmethod
-    def heap_sort(arr, max_=True):
-        h = BinaryHeap(arr=arr, max_=max_)
-        l = [h.extract() for i in range(len(arr) - 1, -1, -1)]
-        return l
+    def heap_sort(arr, compare=max):
+        h = BinaryHeap(arr=arr, compare=compare)
+        sort_arr = [h.extract() for i in range(len(arr) - 1, -1, -1)]
+        return sort_arr
 
     def __str__(self):
         return 'size=' + str(len(self.arr)) + ', H=' + str(self.arr)
 
 
 if __name__ == '__main__':
-    # for i in range(9, 0, -1):
-    #     print(i)
-    a = [1, 4, 0, 9, 3, 5, 7, -9, 89]
-    b = BinaryHeap(arr=a)
-
-    print(BinaryHeap(arr=a, max_=True))
-    print(a)
-    print(BinaryHeap.heap_sort(a))
-    h = BinaryHeap()
-    h.arr = a
-    print(h)
-    print(a)
+    a = [1, 4, 0, 9, 3, 5]
+    a1 = [9, 5, 4, 3, 1, 0]
+    b = BinaryHeap(arr=a, compare=max)
+    print(b)
+    print(BinaryHeap.heap_sort(a, compare=max))
+    print(BinaryHeap.is_heap(a1, compare=min))
