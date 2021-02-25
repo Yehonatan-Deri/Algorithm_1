@@ -126,10 +126,6 @@ class Graph:
             self.connect(e=e)
 
 
-# class GraphAimed:
-#     pass
-
-
 class GraphNotAimed(Graph):
 
     def __init__(self, E=None, V=None) -> None:
