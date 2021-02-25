@@ -1,6 +1,4 @@
 import copy
-import numpy as np
-import operator
 
 
 class BinaryHeap:
