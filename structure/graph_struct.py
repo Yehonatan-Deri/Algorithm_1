@@ -14,7 +14,7 @@ class Rainbow:
         return f'({self.from_.name}->{self.to.name},w={self.weight})'
 
 
-class Kodkod():
+class NodeGraph:
     def __init__(self, name=None, data=None, Adj=None, rainbow=None):
         self.name, self.data, self.Adj, self.rainbow = name, data, Adj, rainbow
         self.Adj = Adj if Adj else []
@@ -97,7 +97,7 @@ class Graph:
 
     def transpose(self):
         G = Graph()
-        G.V = [Kodkod(name=v.name, data=v.data) for v in self.V]
+        G.V = [NodeGraph(name=v.name, data=v.data) for v in self.V]
         G.E = [Rainbow(G.V[self.V.index(e.to)], G.V[self.V.index(e.from_)], weight=e.weight) for e in self.E]
         # G.V = V
         # G.E = E
@@ -140,7 +140,7 @@ class GraphNotAimed(Graph):
 
 
 if __name__ == '__main__':
-    V = [Kodkod(name=str(i)) for i in range(10)]
+    V = [NodeGraph(name=str(i)) for i in range(10)]
     r = Rainbow(from_=V[0], to=V[1], weight=3)
     G = Graph(V=V)
     G.connect(from_=V[1], to=V[2], weight=1)

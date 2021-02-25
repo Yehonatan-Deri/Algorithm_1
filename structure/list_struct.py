@@ -1,4 +1,4 @@
-class Node:
+class NodeList:
     def __init__(self, name=None, data=None, prev=None, next=None):
         self.name = name, self.data, self.prev, self.next = name, data, prev, next
 
@@ -58,7 +58,7 @@ class List:
             return
         l = List()
         for item in array:
-            l += Node(item)
+            l += NodeList(item)
         return l
 
 
@@ -69,7 +69,7 @@ if __name__ == '__main__':
     # # l = List(7)
     lis = List.create_list([3, 4, 7, 8, 9])
     print(lis)
-    n1 = Node(data=8)
+    n1 = NodeList(data=8)
     lis.head = n1
     print(lis)
     #

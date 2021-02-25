@@ -1,6 +1,6 @@
 import dynamic
 import graph
-from structure.listnode import *
+from structure.list_struct import *
 
 
 class P:
