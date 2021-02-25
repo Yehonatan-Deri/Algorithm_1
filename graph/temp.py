@@ -1,8 +1,19 @@
-def DFS():
+def dfs(G):
     pass
 
 
-def BFS():
+def bfs(G):
     pass
 
 
+def topology(G):
+    pass
+
+
+# strongly connected component graph
+def sccg(G):
+    pass
+
+
+def roots(G):
+    pass
