@@ -113,11 +113,6 @@ class Graph:
     def V(self, V):
         self.__V = V if V is not None else []
 
-    # if V is None:
-    #     self.__V = []
-    # else:
-    #     self.__V = extend([v for v in V if v not in self.__V])
-
     @property
     def E(self):
         return self.__E
@@ -144,15 +139,13 @@ class GraphNotAimed(Graph):
         super().connect(from_, to, weight, e)
         if e:
             e.to.connect(v=from_, weight=e.weight)
-        else:
+        elif from_ and to:
             super().connect(from_=to, to=from_, weight=weight)
 
 
 if __name__ == '__main__':
     V = [Kodkod(name=str(i)) for i in range(10)]
     r = Rainbow(from_=V[0], to=V[1], weight=3)
-    # # print(V[0])
-    #
     G = Graph(V=V)
     G.connect(from_=V[1], to=V[2], weight=1)
     G.connect(from_=V[2], to=V[1], weight=1)
