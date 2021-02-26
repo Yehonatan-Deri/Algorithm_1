@@ -1,4 +1,4 @@
-def kruskal():
+def kruskal(G):
     pass
 
 

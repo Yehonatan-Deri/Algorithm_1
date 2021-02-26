@@ -1,7 +1,7 @@
 import copy
 
 
-class Rainbow:
+class Edge:
 
     def __init__(self, from_, to, weight=1) -> None:
         self.from_, self.to, self.weight = from_, to, weight
@@ -14,71 +14,53 @@ class Rainbow:
         return f'({self.from_.name}->{self.to.name},w={self.weight})'
 
 
-class NodeGraph:
-    def __init__(self, name=None, data=None, Adj=None, rainbow=None):
-        self.name, self.data, self.Adj, self.rainbow = name, data, Adj, rainbow
+class Vertice:
+    def __init__(self, name=None, data=None, Adj=None, edges=None):
+        self.name, self.data, self.Adj, self.edges = name, data, Adj, edges
         self.Adj = Adj if Adj else []
-        self.rainbow = rainbow if rainbow else []
+        self.edges = edges if edges else []
 
     def connect(self, v=None, weight=1, e=None):
         if e:
             if e.to not in self.Adj:
                 self.Adj.append(e.to)
-                self.rainbow.append(e)
+                self.edges.append(e)
         elif v:
             if v not in self.Adj:
                 self.Adj.append(v)
-                e = Rainbow(self, v, weight=weight)
-                self.rainbow.append(e)
+                e = Edge(self, v, weight=weight)
+                self.edges.append(e)
         return e
 
     def disconnect(self, v):
         if v in self.Adj:
             i = self.Adj.index(v)
-            self.Adj -= v
-            del self.rainbow[i]
+            self.Adj.remove(v)
+            del self.edges[i]
 
     def is_connect(self, v):
         return v in self.Adj
 
     def __str__(self) -> str:
-        return f'name: {self.name}, Adj: {self.Adj}, rainbow: {self.rainbow}'
+        return f'name: {self.name}, Adj: {self.Adj}, rainbow: {self.edges}'
 
     def __repr__(self) -> str:
-        return f'(name: {self.name}, Adj: {self.Adj}, rainbow: {self.rainbow})'
-
-    # def Adj_str(self):
-    #     return '[' + ','.join([v.name for v in self.Adj]) + ']'
-
-
-# class KodkodDFS(Kodkod):
-#
-#     def __init__(self, name=None, data=None, pi=None, color=None, i=None, f=None, d=None):
-#         super().__init__(name, data)
-#         self.pi, self.color, self.i, self.d, self.f = pi, color, i, d, f
-#
-#
-# class KodkodBFS(Kodkod):
-#
-#     def __init__(self, name=None, data=None, pi=None, color=None, i=None, layer=None):
-#         super().__init__(name, data)
-#         self.pi, self.color, self.i, self.layer = pi, color, i, layer
+        return f'(name: {self.name}, Adj: {self.Adj}, rainbow: {self.edges})'
 
 
 class Graph:
 
     def __init__(self, E=None, V=None) -> None:
-        # if V is None:
-        #     V = []
-        # if E is None:
-        #     E = []
         self.E, self.V = E, V
 
-    def connect(self, from_=None, to=None, weight=1, e=None):
+    def connect(self, from_: Vertice = None, to: Vertice = None, weight=1, e: Edge = None):
         if e:
             from_, to, weight = e.from_, e.to, e.weight
-        else:
+        elif from_ and to:
             e = from_.connect(v=to, weight=weight)
+        else:
+            print('ERROR : must pass @from_,@to OR @e parameters')
+            return
         from_.connect(v=to, weight=weight)
         if e not in self.E:
             self.E.append(e)
@@ -86,6 +68,18 @@ class Graph:
             self.V.append(from_)
         if to not in self.V:
             self.V.append(to)
+
+    def disconnect(self, from_: Vertice = None, to: Vertice = None, e: Edge = None):
+        if e:
+            from_, to = e.from_, e.to
+        elif not from_ or not to:
+            print('ERROR : must pass @from_,@to OR @e parameters')
+            return
+        from_.disconnect(v=to)
+        for edg in self.E:
+            if edg.from_ == from_ and edg.to == to:
+                self.E.remove(edg)
+                return
 
     def __str__(self):
         s = '------------------  graph  -----------------\n'
@@ -95,14 +89,11 @@ class Graph:
         s += '--------------------------------------------'
         return s
 
+    # return new G' transpose graph
     def transpose(self):
         G = Graph()
-        G.V = [NodeGraph(name=v.name, data=v.data) for v in self.V]
-        G.E = [Rainbow(G.V[self.V.index(e.to)], G.V[self.V.index(e.from_)], weight=e.weight) for e in self.E]
-        # G.V = V
-        # G.E = E
-        # for e in G.E:
-        #     G.connect(e=e)
+        G.V = [Vertice(name=v.name, data=v.data) for v in self.V]
+        G.E = [Edge(G.V[self.V.index(e.to)], G.V[self.V.index(e.from_)], weight=e.weight) for e in self.E]
         return G
 
     @property
@@ -120,6 +111,7 @@ class Graph:
     @E.setter
     def E(self, E):
         self.__E = E if E is not None else []
+        # self.V = []
         if not E:
             return
         for e in E:
@@ -140,12 +132,13 @@ class GraphNotAimed(Graph):
 
 
 if __name__ == '__main__':
-    V = [NodeGraph(name=str(i)) for i in range(10)]
-    r = Rainbow(from_=V[0], to=V[1], weight=3)
+    V = [Vertice(name=str(i)) for i in range(10)]
+    r = Edge(from_=V[0], to=V[1], weight=3)
     G = Graph(V=V)
     G.connect(from_=V[1], to=V[2], weight=1)
     G.connect(from_=V[2], to=V[1], weight=1)
     G.connect(e=r)
     print(G)
-    print(G.transpose())
-    # print(V[1].Adj_str())
+    G.disconnect(from_=V[1], to=V[0])
+    print(G)
+    # print(G.transpose())

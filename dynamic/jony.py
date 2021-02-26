@@ -2,7 +2,7 @@ def lcs(arr):
     pass
 
 
-# @jony
+# @johnny
 def rod_cut(P):
     pass
 
