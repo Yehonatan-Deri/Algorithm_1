@@ -29,6 +29,8 @@ class Vertice:
                 self.Adj.append(e.to)
                 self.edges.append(e)
         elif v:
+            if v is self:
+                return
             if v not in self.Adj:
                 self.Adj.append(v)
                 e = Edge(self, v, weight=weight)
@@ -61,7 +63,7 @@ class Graph:
     def connect(self, from_: Vertice = None, to: Vertice = None, weight=1, e: Edge = None):
         if e:
             from_, to, weight = e.from_, e.to, e.weight
-        elif from_ and to:
+        elif from_ and to and from_ is not to:
             e = from_.connect(v=to, weight=weight)
         else:
             print('ERROR : must pass @from_,@to OR @e parameters')
