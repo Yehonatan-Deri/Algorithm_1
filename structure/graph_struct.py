@@ -15,7 +15,7 @@ class Edge:
 
 
 class Vertice:
-    def __init__(self, name=None, data=None, Adj=None, edges=None):
+    def __init__(self, name=None, data=None, Adj=None, edges: Edge = None):
         self.name, self.data, self.Adj, self.edges = name, data, Adj, edges
         self.Adj = Adj if Adj else []
         self.edges = edges if edges else []
@@ -45,12 +45,14 @@ class Vertice:
         return f'name: {self.name}, Adj: {self.Adj}, rainbow: {self.edges}'
 
     def __repr__(self) -> str:
-        return f'(name: {self.name}, Adj: {self.Adj}, rainbow: {self.edges})'
+        return f'{self.name}'
 
 
 class Graph:
+    E: [Edge]
+    V: [Vertice]
 
-    def __init__(self, E=None, V=None) -> None:
+    def __init__(self, E: [Edge] = None, V: [Vertice] = None) -> None:
         self.E, self.V = E, V
 
     def connect(self, from_: Vertice = None, to: Vertice = None, weight=1, e: Edge = None):
