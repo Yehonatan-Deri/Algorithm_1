@@ -1,29 +1,28 @@
-from Algorithm_1.structure.graph_struct import Graph, Edge, Vertice
+from Algorithm_1.structure.graph_struct import Graph, Vertice
 import numpy as np
 from typing import Union, Tuple
 
 
-def bfs(G: Graph, v=None) -> Tuple[dict, dict]:
+def bfs(G: Graph, s=None) -> Tuple[dict, dict]:
     """
     params:
         v: vertice to start bfs , by default is G.V[0]
     efficiency: O(V+E)
     """
-    v = v if v else V[0]
-    pi, color, layer, Q = {v: None for v in G.V}, {v: 'white' for v in G.V}, {G.V[0]: 1}, [G.V[0]]
+    pi, color, layer, Q = {v: None for v in G.V}, {v: 'white' for v in G.V}, {G.V[0]: 1}, [s if s else V[0]]
 
     while len(Q):
-        v = Q.pop()
-        for u in v.Adj:
+        s = Q.pop()
+        for u in s.Adj:
             if color[u] == 'white':
-                pi[u], color[u], layer[u] = v, 'gray', layer[v] + 1
+                pi[u], color[u], layer[u] = s, 'gray', layer[s] + 1
                 Q.append(u)
-        color[v] = 'black'
+        color[s] = 'black'
 
     return pi, layer
 
 
-def dfs(G: Graph) -> Tuple[dict, dict, dict]:
+def dfs(G: Graph, s=None) -> Tuple[dict, dict, dict]:
     """
     efficiency: O(V+E)
     """
@@ -40,6 +39,8 @@ def dfs(G: Graph) -> Tuple[dict, dict, dict]:
         color[v] = 'black'
         time, f[v] = time + 1, time + 1
 
+    if s:
+        dfs_visit(s)
     for v in G.V:
         if color[v] == 'white':
             dfs_visit(v)
@@ -52,25 +53,28 @@ def search_circle(G: Graph) -> Union[bool, dict]:  # -> tuple(dict, dict, dict)
     return: dict of exit time if circle not found or False if circle found
     efficiency: O(V+E)
     """
-    time = 0
+    time, circle = 0, False
     color, f = {v: 'white' for v in G.V}, {}
 
     def dfs_visit(v: Vertice):
-        nonlocal time
+        nonlocal time, circle
         color[v], time = 'gray', time + 1
         for u in v.Adj:
             if color[u] == 'white':
                 dfs_visit(u)
-            elif color == 'white':
-                return False
+            elif color == 'gray':
+                circle = False
+                return
 
-            color[v] = 'black'
+        color[v] = 'black'
 
         time, f[v] = time + 1, time + 1
 
     for v in G.V:
         if color[v] == 'white':
-            if not dfs_visit(v):
+            if not circle:
+                dfs_visit(v)
+            else:
                 return False
     return f
 
@@ -110,7 +114,7 @@ def forest(G, v=None):
     # for v in G.V:
     #     if color[v] == 'white':
     dfs_visit(v)
-    return return_edge, cross_edge, forest_edge, forward_edge
+    return return_edge, cross_edge, forest_edge, forward_edge, pi, d, f
 
 
 def topology(G: Graph) -> Union[list, None]:
@@ -140,33 +144,70 @@ def sccg(G: Graph):
         color[v] = 'gray'
         for u in v.Adj:
             if color[u] == 'white':
-                tie_well[len(tie_well) - 1].append(u)
+                tie_well[len(tie_well) - 1].append(G.V[G_t.V.index(u)])
                 dfs_visit(u)
 
     color, tie_well, index_order = {v: 'white' for v in G_t.V}, [], [item[2] for item in f]
     for v in np.array(G_t.V)[index_order]:
         if color[v] == 'white':
-            tie_well.append([v])
+            tie_well.append([G.V[G_t.V.index(v)]])
             dfs_visit(v)
 
     return tie_well
 
 
 def roots(G):
-    pass
+    _, _, f = dfs(G)
+    s = max(f.items(), key=lambda item: item[1])[0]
+    pi, _, _ = dfs(G, s=s)
+    for v, p in pi.items():
+        if not p and v is not s:
+            return False
+
+    G_scc = tie_well_graph(G)
+    return topology(G_scc)[0]
+
+
+def leaves(G):
+    return roots(G.transpose())
+
+
+def tie_well_graph(G):
+    """
+    efficiency: O(V+E)
+    """
+    tie_well = sccg(G)
+    scc = {}
+    for v_group, i in zip(tie_well, range(len(tie_well))):
+        for v in v_group:
+            scc[v] = i
+    G_scc = Graph()
+
+    for v_group in tie_well:
+        v = Vertice(name=str(v_group), data=v_group)
+        G_scc.V.append(v)
+    for v, i in scc.items():
+        for e in v.edges:
+            if e.to not in tie_well[i]:
+                G_scc.connect(from_=G_scc.V[i], to=G_scc.V[scc[e.to]], weight=e.weight)
+
+    return G_scc
 
 
 if __name__ == '__main__':
     V = [Vertice(name=str(i)) for i in range(5)]
     # r = Edge(from_=V[0], to=V[1], weight=3)
     G = Graph(V=V)
-    # G.connect(from_=V[1], to=V[2], weight=1)
-    # G.connect(from_=V[2], to=V[1], weight=1)
+    G.connect(from_=V[1], to=V[2], weight=1)
+    G.connect(from_=V[2], to=V[1], weight=1)
     # G.connect(e=r)
-    G.connect(from_=V[5], to=V[6])
-    G.connect(from_=V[6], to=V[6])
+    G.connect(from_=V[3], to=V[2])
+    G.connect(from_=V[4], to=V[0])
+    G.connect(from_=V[3], to=V[0])
+    G.connect(from_=V[1], to=V[4])
 
-    print(G)
-    topology(G)
-    print(topology(G))
-    print(sccg(G))
+    # print(G)
+    # topology(G)
+    # print(topology(G))
+    # print(sccg(G))
+    print(leaves(G))

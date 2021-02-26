@@ -6,7 +6,6 @@ class Edge:
 
     def __init__(self, from_, to, weight=1) -> None:
         self.from_, self.to, self.weight = from_, to, weight
-        # Kodkod.connect(self)
 
     def __str__(self):
         return f'({self.from_.name}->{self.to.name},w={self.weight})'
@@ -146,6 +145,6 @@ if __name__ == '__main__':
     G.connect(from_=V[2], to=V[1], weight=1)
     G.connect(e=r)
     print(G)
-    G.disconnect(from_=V[1], to=V[0])
+    G.transpose()
     print(G)
     # print(G.transpose())
