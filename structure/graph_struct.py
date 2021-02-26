@@ -1,4 +1,5 @@
 import copy
+from typing import List
 
 
 class Edge:
@@ -15,7 +16,9 @@ class Edge:
 
 
 class Vertice:
-    def __init__(self, name=None, data=None, Adj=None, edges: Edge = None):
+    def __init__(self, name=None, data=None, Adj=None, edges=None):
+        self.Adj: List[Vertice]
+        self.edges: List[Edge]
         self.name, self.data, self.Adj, self.edges = name, data, Adj, edges
         self.Adj = Adj if Adj else []
         self.edges = edges if edges else []
