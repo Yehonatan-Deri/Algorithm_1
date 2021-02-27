@@ -2,7 +2,7 @@ def lcs(arr):
     pass
 
 
-def longest_palindrom(s):
+def longest_palindrome(s):
     pass
 
 
