@@ -14,9 +14,9 @@ class Edge:
         return f'({self.from_.name}->{self.to.name},w={self.weight})'
 
 
-class Vertice:
+class Vertex:
     def __init__(self, name=None, data=None, Adj=None, edges=None):
-        self.Adj: List[Vertice]
+        self.Adj: List[Vertex]
         self.edges: List[Edge]
         self.name, self.data, self.Adj, self.edges = name, data, Adj, edges
         self.Adj = Adj if Adj else []
@@ -54,12 +54,12 @@ class Vertice:
 
 class Graph:
     E: [Edge]
-    V: [Vertice]
+    V: [Vertex]
 
-    def __init__(self, E: [Edge] = None, V: [Vertice] = None) -> None:
+    def __init__(self, E: [Edge] = None, V: [Vertex] = None) -> None:
         self.E, self.V = E, V
 
-    def connect(self, from_: Vertice = None, to: Vertice = None, weight=1, e: Edge = None):
+    def connect(self, from_: Vertex = None, to: Vertex = None, weight=1, e: Edge = None):
         if e:
             from_, to, weight = e.from_, e.to, e.weight
         elif from_ and to and from_ is not to:
@@ -75,7 +75,7 @@ class Graph:
         if to not in self.V:
             self.V.append(to)
 
-    def disconnect(self, from_: Vertice = None, to: Vertice = None, e: Edge = None):
+    def disconnect(self, from_: Vertex = None, to: Vertex = None, e: Edge = None):
         if e:
             from_, to = e.from_, e.to
         elif not from_ or not to:
@@ -98,7 +98,7 @@ class Graph:
     # return new G' transpose graph
     def transpose(self):
         G = Graph()
-        G.V = [Vertice(name=v.name, data=v.data) for v in self.V]
+        G.V = [Vertex(name=v.name, data=v.data) for v in self.V]
         G.E = [Edge(G.V[self.V.index(e.to)], G.V[self.V.index(e.from_)], weight=e.weight) for e in self.E]
         return G
 
@@ -136,9 +136,15 @@ class GraphNotAimed(Graph):
         elif from_ and to:
             super().connect(from_=to, to=from_, weight=weight)
 
+    def disconnect(self, from_: Vertex = None, to: Vertex = None, e: Edge = None):
+        super().disconnect(from_=from_, to=to, e=e)
+        if e:
+            from_ = e.from_, to = e.to
+        super().disconnect(to=from_, from_=to)
+
 
 if __name__ == '__main__':
-    V = [Vertice(name=str(i)) for i in range(10)]
+    V = [Vertex(name=str(i)) for i in range(10)]
     r = Edge(from_=V[0], to=V[1], weight=3)
     G = Graph(V=V)
     G.connect(from_=V[1], to=V[2], weight=1)

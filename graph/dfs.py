@@ -1,25 +1,6 @@
-from Algorithm_1.structure.graph_struct import Graph, Vertice
+from Algorithm_1.structure.graph_struct import Graph, Vertex
 import numpy as np
 from typing import Union, Tuple
-
-
-def bfs(G: Graph, s=None) -> Tuple[dict, dict]:
-    """
-    params:
-        v: vertice to start bfs , by default is G.V[0]
-    efficiency: O(V+E)
-    """
-    pi, color, layer, Q = {v: None for v in G.V}, {v: 'white' for v in G.V}, {G.V[0]: 1}, [s if s else V[0]]
-
-    while len(Q):
-        s = Q.pop()
-        for u in s.Adj:
-            if color[u] == 'white':
-                pi[u], color[u], layer[u] = s, 'gray', layer[s] + 1
-                Q.append(u)
-        color[s] = 'black'
-
-    return pi, layer
 
 
 def dfs(G: Graph, s=None) -> Tuple[dict, dict, dict]:
@@ -29,7 +10,7 @@ def dfs(G: Graph, s=None) -> Tuple[dict, dict, dict]:
     time = 0
     pi, color, d, f = {v: None for v in G.V}, {v: 'white' for v in G.V}, {}, {}
 
-    def dfs_visit(v: Vertice):
+    def dfs_visit(v: Vertex):
         nonlocal time
         color[v], time, d[v] = 'gray', time + 1, time + 1
         for u in v.Adj:
@@ -56,7 +37,7 @@ def search_circle(G: Graph) -> Union[bool, dict]:  # -> tuple(dict, dict, dict)
     time, circle = 0, False
     color, f = {v: 'white' for v in G.V}, {}
 
-    def dfs_visit(v: Vertice):
+    def dfs_visit(v: Vertex):
         nonlocal time, circle
         color[v], time = 'gray', time + 1
         for u in v.Adj:
@@ -93,7 +74,7 @@ def forest(G, v=None):
     pi, color, d, f = {v: None for v in G.V}, {v: 'white' for v in G.V}, {}, {}
     return_edge, cross_edge, forest_edge, forward_edge = [], [], [], []
 
-    def dfs_visit(v: Vertice):
+    def dfs_visit(v: Vertex):
         nonlocal time
         color[v], time, d[v] = 'gray', time + 1, time + 1
         for e in v.edges:
@@ -140,7 +121,7 @@ def sccg(G: Graph):
     f.sort(key=lambda item: item[1], reverse=True)
     G_t = G.transpose()
 
-    def dfs_visit(v: Vertice):
+    def dfs_visit(v: Vertex):
         color[v] = 'gray'
         for u in v.Adj:
             if color[u] == 'white':
@@ -184,7 +165,7 @@ def tie_well_graph(G):
     G_scc = Graph()
 
     for v_group in tie_well:
-        v = Vertice(name=str(v_group), data=v_group)
+        v = Vertex(name=str(v_group), data=v_group)
         G_scc.V.append(v)
     for v, i in scc.items():
         for e in v.edges:
@@ -195,7 +176,7 @@ def tie_well_graph(G):
 
 
 if __name__ == '__main__':
-    V = [Vertice(name=str(i)) for i in range(5)]
+    V = [Vertex(name=str(i)) for i in range(5)]
     # r = Edge(from_=V[0], to=V[1], weight=3)
     G = Graph(V=V)
     G.connect(from_=V[1], to=V[2], weight=1)
