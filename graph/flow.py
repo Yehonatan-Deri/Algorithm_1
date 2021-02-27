@@ -8,3 +8,7 @@ def scaling(G):
 
 def flow_bfs(G):
     pass
+
+
+def paires(G):
+    pass
