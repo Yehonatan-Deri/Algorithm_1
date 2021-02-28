@@ -20,3 +20,5 @@ get_user_name(some_ProUserId)
 a = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
 
 # print(np.array(a)[])
+from Algorithm_1.graph.distance import *
+# _init([],9)

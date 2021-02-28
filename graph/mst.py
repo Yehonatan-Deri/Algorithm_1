@@ -11,7 +11,6 @@ def prim(G, restore=False):
 
     @params:
         @G: graph
-        @s: vertex to start
         @restore: if restore the solution
 
     return:
@@ -30,7 +29,7 @@ def prim(G, restore=False):
     key = lambda v: v.data['key']
     Q = BinaryHeapPrim(arr=G.V, compare=min, key=key) if struct == 'heap' else [v for v in G.V]
 
-    while struct == 'heap' and Q.arr or Q:
+    while struct == 'heap' and Q.arr or struct == 'array' and Q:
         v, v.data['in heap'] = Q.extract() if struct == 'heap' else Q.pop(Q.index(min(Q, key=key))), False
         for e in v.edges:
             if e.to.data['in heap'] and e.weight < e.to.data['key']:
@@ -55,7 +54,6 @@ def kruskal(G, restore=False):
 
        @params:
            @G: graph
-           @s: vertex to start
            @restore: if restore the solution
 
        return:
