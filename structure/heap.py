@@ -1,6 +1,9 @@
 import copy
 
 
+# import struct_
+
+
 class BinaryHeap:
     """
     BinaryHeap class:
@@ -27,8 +30,8 @@ class BinaryHeap:
 
     """
 
-    def __init__(self, arr=None, compare=max) -> None:
-        self.compare, self.arr = compare, arr
+    def __init__(self, arr=None, compare=max, key=None) -> None:
+        self.compare, self.key, self.arr = compare, key, arr
 
     def father(self, i):
         if i < 0 or i >= len(self.arr):
@@ -54,18 +57,15 @@ class BinaryHeap:
 
     # efficiency: O(log n)
     def pop(self, i):
-        data = self.arr[i]
-        self.arr[i] = self.arr[0] + 1
-        self.heapify_up(i)
-        self.extract()
+        self.arr[i], self.arr[len(self.arr) - 1] = self.arr[len(self.arr) - 1], self.arr[i]
+        data = self.arr.pop()
+        if i < len(self.arr):
+            self.heapify_down(i)
         return data
 
     # efficiency: O(log n)
     def extract(self):
-        self.arr[0], self.arr[len(self.arr) - 1] = self.arr[len(self.arr) - 1], self.arr[0]
-        data = self.arr.pop(len(self.arr) - 1)
-        self.heapify_down(0)
-        return data
+        return self.pop(0)
 
     # efficiency: O(n)
     @property
@@ -85,9 +85,9 @@ class BinaryHeap:
     # efficiency: O(log n)
     def heapify_up(self, i):
         while i > 0:
-            i_max = self.arr.index(self.compare(self.arr[i], self.arr[self.father(i)]))
+            i_max = self.arr.index(self.compare(self.arr[i], self.arr[self.father(i)], key=self.key))
             if i == i_max:
-                self.arr[i], self.arr[self.father(i)], i = self.arr[self.father(i)], self.arr[i], i_max
+                self.arr[i], self.arr[self.father(i)], i = self.arr[self.father(i)], self.arr[i], self.father(i)
             else:
                 return
 
@@ -95,17 +95,17 @@ class BinaryHeap:
     def heapify_down(self, i):
         while i < len(self.arr) // 2:
             r, l = self.left(i), self.right(i)  # indexes of right and left suns
-            i_max = self.arr.index(self.compare([self.arr[x] for x in [i, r, l] if x is not False]))
+            i_max = self.arr.index(self.compare([self.arr[x] for x in [i, r, l] if x is not False], key=self.key))
             if i_max != i:
                 self.arr[i], self.arr[i_max], i = self.arr[i_max], self.arr[i], i_max
             else:
                 return
 
     @staticmethod
-    def is_heap(arr, compare=max):
+    def is_heap(arr, compare=max, key=None):
         for father in range(len(arr) // 2):
             l, r = father * 2 + 1, father * 2 + 2 if father * 2 + 2 < len(arr) else False
-            if compare([arr[x] for x in [father, r, l] if x is not False]) != arr[father]:
+            if compare([arr[x] for x in [father, r, l] if x is not False], key=key) != arr[father]:
                 return False
         return True
 
@@ -122,6 +122,18 @@ class BinaryHeap:
     def __add__(self, data):
         self.add(data)
         return self
+
+
+class Binomial:
+    def __init__(self):
+        pass
+
+
+class Fibonacci:
+    def __init__(self):
+        pass
+
+    pass
 
 
 if __name__ == '__main__':
