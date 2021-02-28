@@ -60,7 +60,6 @@ def search_circle(G: Graph) -> Union[bool, dict]:  # -> tuple(dict, dict, dict)
     return f
 
 
-# @robuz
 def forest(G, v=None):
     """
     Classification of the edges in G:

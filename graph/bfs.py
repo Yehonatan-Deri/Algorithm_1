@@ -1,4 +1,4 @@
-from Algorithm_1.structure.graph_struct import Vertex, Edge, Graph, GraphNotAimed
+from Algorithm_1.structure.graph_struct import Vertex, Graph, GraphNotAimed
 from typing import Tuple
 
 
@@ -11,7 +11,7 @@ def bfs(G: Graph, s=None) -> Tuple[dict, dict]:
     pi, color, layer, Q = {v: None for v in G.V}, {v: 'white' for v in G.V}, {G.V[0]: 1}, [s if s else G.V[0]]
 
     while len(Q):
-        v = Q.pop()
+        v = Q.pop(0)
         for u in v.Adj:
             if color[u] == 'white':
                 pi[u], color[u], layer[u] = v, 'gray', layer[v] + 1
@@ -37,7 +37,7 @@ def search_circle(G: GraphNotAimed, s=None):
     pi, color, layer, Q = {v: None for v in G.V}, {v: 'white' for v in G.V}, {G.V[0]: 1}, [s if s else G.V[0]]
 
     while len(Q):
-        v = Q.pop()
+        v = Q.pop(0)
         for u in v.Adj:
             if color[u] == 'white':
                 pi[u], color[u], layer[u] = v, 'gray', layer[v] + 1
@@ -61,7 +61,7 @@ def two_sided_graph(G: GraphNotAimed):
     pi, color, layer, Q = {v: None for v in G.V}, {v: 'white' for v in G.V}, {G.V[0]: 1}, [G.V[0]]
 
     while len(Q):
-        v = Q.pop()
+        v = Q.pop(0)
         for u in v.Adj:
             if color[u] == 'white':
                 pi[u], color[u], layer[u] = v, 'gray', layer[v] + 1
