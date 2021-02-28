@@ -3,7 +3,7 @@ from Algorithm_1.structure.list_struct import TwoWayList
 from Algorithm_1.structure.heap import BinaryHeap
 
 
-def prim(G, s, restore=False):
+def prim(G, restore=False):
     """
     prim algorithm:
         if |E| * 0.75  < |V|^2 : the struct will be min heap
@@ -26,7 +26,7 @@ def prim(G, s, restore=False):
     pi = {v: None for v in G.V}
     for v in G.V:
         v.data = {'key': float('inf'), 'in heap': True}
-    s.data['key'] = 0
+    G.V[0].data['key'] = 0
     key = lambda v: v.data['key']
     Q = BinaryHeapPrim(arr=G.V, compare=min, key=key) if struct == 'heap' else [v for v in G.V]
 
@@ -49,7 +49,7 @@ def prim(G, s, restore=False):
     return pi
 
 
-def kruskal(G, s, restore=False):
+def kruskal(G, restore=False):
     """
        kruskal algorithm:
 
@@ -185,9 +185,9 @@ if __name__ == '__main__':
     G.connect(from_=V[2], to=V[4], weight=8)
     # ---------------------
     # print(G)
-    # print(prim(G, G.V[0], restore=True)[1])
-    print(kruskal(G, G.V[0], restore=True))
-    # t = kruskal(G, G.V[0])
+    print(prim(G, restore=True)[1])
+    print(kruskal(G, restore=True))
+    t = kruskal(G)
     # w = 0
     # for i in t:
     #     w += i.weight
