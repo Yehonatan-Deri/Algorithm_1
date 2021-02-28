@@ -46,7 +46,7 @@ class Vertex:
         return v in self.Adj
 
     def __str__(self) -> str:
-        return f'name: {self.name}, Adj: {self.Adj}, rainbow: {self.edges}'
+        return f'name: {self.name}, Adj: {self.Adj}, edges: {self.edges}, {self.data}'
 
     def __repr__(self) -> str:
         return f'{self.name}'
@@ -68,7 +68,7 @@ class Graph:
             print('ERROR : must pass @from_,@to OR @e parameters')
             return
         from_.connect(v=to, weight=weight)
-        if e not in self.E:
+        if e and e not in self.E:
             self.E.append(e)
         if from_ not in self.V:
             self.V.append(from_)
@@ -130,9 +130,11 @@ class GraphNotAimed(Graph):
         super().__init__(E, V)
 
     def connect(self, from_=None, to=None, weight=1, e=None):
-        super().connect(from_, to, weight, e)
+        super().connect(from_=from_, to=to, weight=weight, e=e)
         if e:
-            e.to.connect(v=from_, weight=e.weight)
+            from_, to = e.from_, e.to
+        # elif not from_ and not to:
+        #     pass
         elif from_ and to:
             super().connect(from_=to, to=from_, weight=weight)
 

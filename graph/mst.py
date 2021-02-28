@@ -1,31 +1,42 @@
-from typing import List
-
-from Algorithm_1.structure.graph_struct import Graph, GraphNotAimed, Vertex, Edge
-from Algorithm_1.structure.list_struct import ListNode, List
+from Algorithm_1.structure.graph_struct import GraphNotAimed, Vertex
+from Algorithm_1.structure.list_struct import TwoWayList
 from Algorithm_1.structure.heap import BinaryHeap
-import copy
 
 
-# @robuz
-def kruskal(G, s, restore=False):
+def prim(G, s, restore=False):
     """
-    kruskal algorithm
-    efficiency: O(Vlog V)
-    """
-    # if len()
+    prim algorithm:
+        if |E| * 0.75  < |V|^2 : the struct will be min heap
+        else:                    the struct will be array
 
+    @params:
+        @G: graph
+        @s: vertex to start
+        @restore: if restore the solution
+
+    return:
+        return pi dict
+        if restore=True the mst graph (=Minimal spreadsheet graph) will be return also
+
+    efficiency:
+        if |E| * 0.75  < |V|^2: => O(Vlog V)
+        if |E| * 0.75  > |V|^2: => O(E) = O(|V|^2)
+    """
+    struct = 'heap' if len(G.E) < (len(G.V) ** 2) * 0.75 else 'array'
     pi = {v: None for v in G.V}
     for v in G.V:
         v.data = {'key': float('inf'), 'in heap': True}
     s.data['key'] = 0
-    Q = BinaryHeapPrim(arr=G.V, compare=min, key=lambda v: v.data['key'])
+    key = lambda v: v.data['key']
+    Q = BinaryHeapPrim(arr=G.V, compare=min, key=key) if struct == 'heap' else [v for v in G.V]
 
-    while Q.arr:
-        v, v.data['in heap'] = Q.extract(), False
+    while struct == 'heap' and Q.arr or Q:
+        v, v.data['in heap'] = Q.extract() if struct == 'heap' else Q.pop(Q.index(min(Q, key=key))), False
         for e in v.edges:
             if e.to.data['in heap'] and e.weight < e.to.data['key']:
                 pi[e.to], e.to.data['key'] = v, e.weight
-                Q.add(Q.pop(e.to.data['i']))
+                if struct == 'heap':
+                    Q.add(Q.pop(e.to.data['i']))
 
     if restore:
         V = {v: Vertex(name=v.name, data=v.data) for v in G.V}
@@ -38,13 +49,55 @@ def kruskal(G, s, restore=False):
     return pi
 
 
-def prim(G):
-    pass
+def kruskal(G, s, restore=False):
+    """
+       kruskal algorithm:
+
+       @params:
+           @G: graph
+           @s: vertex to start
+           @restore: if restore the solution
+
+       return:
+           return pi dictionary
+           if restore=True the mst graph (=Minimal spreadsheet graph) will be return also
+
+       efficiency:
+           the sort of the edges: O(|E|log(|E|)) , the loop: O(|V|log(|V|) => total: O(|E|log(|E|)
+           if the edges already sorted kruskal is fasted than prim
+       """
+
+    def union(e):
+        v, u = set_id[e.from_], set_id[e.to]
+        v, u = (v, u) if sets[v].n > sets[u].n else (u, v)
+        for node in sets[u]:
+            set_id[node.data] = v
+        sets[v] = sets[v] + sets[u]
+        sets.pop(u)
+
+    E_sor, sets, set_id = sorted(G.E, key=lambda e: e.weight), {v: TwoWayList() for v in G.V}, {v: v for v in G.V}
+    for v, lis in sets.items():
+        lis += v
+
+    A = []
+    for e in E_sor:
+        if set_id[e.from_] is not set_id[e.to]:
+            A.append(e)
+            union(e)
+
+    if restore:
+        V = {v: Vertex(name=v.name, data=v.data) for v in G.V}
+        G_mst = GraphNotAimed()
+        for e in A:
+            G_mst.connect(from_=V[e.from_], to=V[e.to], weight=e.weight)
+        return A, G_mst
+
+    return A
 
 
 class BinaryHeapPrim(BinaryHeap):
     """
-    this class is for kruskal algorithm only , the vertex in this class contain 'i' => index of the object
+    this class is for prim algorithm only , the vertex in this class contain 'i' => index of the object
         in the heap so we can add/pop element in O(1) if we have the element itself (=instead of O(n))
         the 'i' stored in dict in Vertex.data['i']
     """
@@ -123,6 +176,25 @@ if __name__ == '__main__':
     G.connect(from_=V[2], to=V[5], weight=1)
     G.connect(from_=V[3], to=V[4], weight=6)
     G.connect(from_=V[4], to=V[5], weight=8)
+    # ---------------------
+    G.connect(from_=V[0], to=V[2], weight=8)
+    G.connect(from_=V[0], to=V[5], weight=8)
+    G.connect(from_=V[1], to=V[0], weight=8)
+    G.connect(from_=V[1], to=V[3], weight=8)
+    G.connect(from_=V[2], to=V[3], weight=8)
+    G.connect(from_=V[2], to=V[4], weight=8)
+    # ---------------------
+    # print(G)
+    # print(prim(G, G.V[0], restore=True)[1])
+    print(kruskal(G, G.V[0], restore=True))
+    # t = kruskal(G, G.V[0])
+    # w = 0
+    # for i in t:
+    #     w += i.weight
 
-    print(G)
-    print(kruskal(G, G.V[0], restore=True)[1])
+    # G_ = Graph()
+    # print(type(G_) is type(G))
+    # print(type(G_) == type(G))
+    # print(isinstance(G, Graph))
+    # print(isinstance(G, GraphNotAimed))
+    # print(isinstance(G_, GraphNotAimed))
