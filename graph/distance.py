@@ -4,6 +4,7 @@ from Algorithm_1.structure.heap import BinaryHeap
 from Algorithm_1.graph.mst import BinaryHeapPrim
 from Algorithm_1.graph.dfs import topology
 import numpy as np
+import copy
 
 
 def dijkstra(G, s):
@@ -263,7 +264,28 @@ def init_all_pairs(G):
 
 
 def johnson(G):
-    pass
+    s = Vertex(name='s')
+    for v in G.V:
+        if v is not s:
+            G.connect(from_=s, to=v, weight=0)
+    pi = bellman_ford(G, s)
+    if not pi:  # if there is negative circle in the graph
+        return False
+    h = {v: v.data['key'] for v in G.V}
+    for e in G.E:
+        e.weight += (h[e.from_] - h[e.to])
+
+    D, PI = all_pairs_dijkstra(G)
+    for i in range(len(D)):
+        for j in range(len(D[i])):
+            D[i][j] -= (h[G.V[i]] - h[G.V[j]])
+    for e in G.E:
+        if e.from_ is s:
+            G.disconnect(e=e)
+        else:
+            e.weight -= (h[e.from_] - h[e.to])
+
+    return list(np.array(D)[:-1, :-1]), list(np.array(PI)[:-1, :-1])
 
 
 if __name__ == '__main__':
@@ -298,31 +320,58 @@ if __name__ == '__main__':
     G = Graph()
     for i in range(1, 7):
         G.V.append(V[i])
-    G.connect(from_=V[1], to=V[2], weight=4)
-    G.connect(from_=V[2], to=V[3], weight=6)
-    G.connect(from_=V[2], to=V[5], weight=16)
-    G.connect(from_=V[2], to=V[6], weight=20)
-    G.connect(from_=V[3], to=V[5], weight=5)
-    G.connect(from_=V[4], to=V[1], weight=2)
-    G.connect(from_=V[4], to=V[2], weight=8)
-    G.connect(from_=V[5], to=V[1], weight=7)
-    G.connect(from_=V[5], to=V[4], weight=9)
-    G.connect(from_=V[5], to=V[6], weight=7)
-    G.connect(from_=V[6], to=V[3], weight=8)
+    # G.connect(from_=V[1], to=V[2], weight=4)
+    # G.connect(from_=V[2], to=V[3], weight=6)
+    # G.connect(from_=V[2], to=V[5], weight=16)
+    # G.connect(from_=V[2], to=V[6], weight=20)
+    # G.connect(from_=V[3], to=V[5], weight=5)
+    # G.connect(from_=V[4], to=V[1], weight=2)
+    # G.connect(from_=V[4], to=V[2], weight=8)
+    # G.connect(from_=V[5], to=V[1], weight=7)
+    # G.connect(from_=V[5], to=V[4], weight=9)
+    # G.connect(from_=V[5], to=V[6], weight=7)
+    # G.connect(from_=V[6], to=V[3], weight=8)
 
     # print(np.array([floyd_warshall(G)]))
     # print('-------------------')
     # print(np.array([all_pairs_dijkstra(G)]))
+    # D, PI = floyd_warshall(G)
+    # D_, PI_ = all_pairs_dijkstra(G)
+    # D_1, PI_1 = all_pairs_bellman_ford(G)
+    # D_2, PI_2 = all_pairs_dynamic_slow(G)
+    # D_3, PI_3 = all_pairs_dynamic_fast(G)
+    # print(np.array_equal([D, PI], [D_, PI_]))
+    # print(np.array_equal([D, PI], [D_1, PI_1]))
+    # print(np.array_equal([D, PI], [D_2, PI_2]))
+    # print(np.array_equal([D, PI], [D_3, PI_3]))
+    # ---------------- jonson -------------------------------
+    G.connect(from_=V[1], to=V[2], weight=-1)
+    G.connect(from_=V[2], to=V[3], weight=6)
+    G.connect(from_=V[2], to=V[5], weight=-3)
+    G.connect(from_=V[2], to=V[6], weight=20)
+    G.connect(from_=V[3], to=V[5], weight=15)
+    G.connect(from_=V[4], to=V[1], weight=-2)
+    G.connect(from_=V[4], to=V[2], weight=8)
+    G.connect(from_=V[5], to=V[1], weight=54)
+    G.connect(from_=V[5], to=V[4], weight=10)
+    G.connect(from_=V[5], to=V[6], weight=-1)
+    G.connect(from_=V[6], to=V[3], weight=8)
     D, PI = floyd_warshall(G)
     D_, PI_ = all_pairs_dijkstra(G)
     D_1, PI_1 = all_pairs_bellman_ford(G)
     D_2, PI_2 = all_pairs_dynamic_slow(G)
     D_3, PI_3 = all_pairs_dynamic_fast(G)
+    D_4, PI_4 = johnson(G)
     print(np.array_equal([D, PI], [D_, PI_]))
     print(np.array_equal([D, PI], [D_1, PI_1]))
     print(np.array_equal([D, PI], [D_2, PI_2]))
     print(np.array_equal([D, PI], [D_3, PI_3]))
-
+    print(np.array_equal([D, PI], [D_4, PI_4]))
+    print(np.array([D_4, PI_4]))
+    print('------------------------------------')
+    print(np.array([D, PI]))
+    # bellman_ford(G, G.V[0])
+    # johnson(G)
     # print(np.array([D, PI], [D_3, PI_3]))
 
     # dijkstra(G, G.V[1])
