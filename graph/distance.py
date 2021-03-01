@@ -264,6 +264,28 @@ def init_all_pairs(G):
 
 
 def johnson(G):
+    """
+    johnson algorithm:
+        found distance between all pairs of vertex
+        this method work also with negative edges
+
+    @params:
+        @G: graph
+
+    return: (matrix of distances,matrix of pi)
+
+    the algorithm:
+        1. add vertex 's' with edges to all G.V with weight=0
+        2. run bellman_ford from 's' => h[v] is the distance of v from 's' for all V
+        3. for all w(v,u) from G.E add h[u]-h[v]
+        4. D, PI = all_pairs_dijkstra(G)
+        5. Correction of distances and edges: D[v,u]-=(h[u]-h[v])
+                                              w(v,u)-= (h[u]-h[v]) for all G.E
+
+    efficiency:
+           if |E| * 0.75  < |V|^2: => O(V^2*log V)
+           if |E| * 0.75  > |V|^2: => O(V*E) = O(|V|^3)
+    """
     s = Vertex(name='s')
     for v in G.V:
         if v is not s:
@@ -332,19 +354,7 @@ if __name__ == '__main__':
     # G.connect(from_=V[5], to=V[6], weight=7)
     # G.connect(from_=V[6], to=V[3], weight=8)
 
-    # print(np.array([floyd_warshall(G)]))
-    # print('-------------------')
-    # print(np.array([all_pairs_dijkstra(G)]))
-    # D, PI = floyd_warshall(G)
-    # D_, PI_ = all_pairs_dijkstra(G)
-    # D_1, PI_1 = all_pairs_bellman_ford(G)
-    # D_2, PI_2 = all_pairs_dynamic_slow(G)
-    # D_3, PI_3 = all_pairs_dynamic_fast(G)
-    # print(np.array_equal([D, PI], [D_, PI_]))
-    # print(np.array_equal([D, PI], [D_1, PI_1]))
-    # print(np.array_equal([D, PI], [D_2, PI_2]))
-    # print(np.array_equal([D, PI], [D_3, PI_3]))
-    # ---------------- jonson -------------------------------
+    # ---------------- all pairs -------------------------------
     G.connect(from_=V[1], to=V[2], weight=-1)
     G.connect(from_=V[2], to=V[3], weight=6)
     G.connect(from_=V[2], to=V[5], weight=-3)
@@ -370,11 +380,3 @@ if __name__ == '__main__':
     print(np.array([D_4, PI_4]))
     print('------------------------------------')
     print(np.array([D, PI]))
-    # bellman_ford(G, G.V[0])
-    # johnson(G)
-    # print(np.array([D, PI], [D_3, PI_3]))
-
-    # dijkstra(G, G.V[1])
-    # pi = dag(G, V[0])
-    # print([v.data['key'] for v in G.V])
-    # print(pi.values())
