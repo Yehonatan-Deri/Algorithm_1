@@ -3,6 +3,7 @@ from Algorithm_1.structure.list_struct import TwoWayList
 from Algorithm_1.structure.heap import BinaryHeap
 from Algorithm_1.graph.mst import BinaryHeapPrim
 from Algorithm_1.graph.dfs import topology
+import numpy as np
 
 
 def dijkstra(G, s):
@@ -122,23 +123,143 @@ def _init(G, s):
 
 
 def floyd_warshall(G):
-    pass
+    """
+    bellman ford algorithm:
+        found distance between all pairs of vertex
+        this method work also with negative edges
+
+    @params:
+        @G: graph
+
+    return (matrix of distances,matrix of pi)
+
+    the algorithm:
+        In any external iteration the algorithm try to check for all pairs of
+        vertex if the the passage through the G.V[k] will shorten the way
+
+    efficiency: O(|V|^3)
+    """
+    D, PI = init_all_pairs(G)
+    for k in range(len(G.V)):
+        for i in range(len(G.V)):
+            for j in range(len(G.V)):
+                if D[i][k] + D[k][j] < D[i][j]:
+                    D[i][j], PI[i][j] = D[i][k] + D[k][j], PI[k][j]
+
+    return D, PI
 
 
 def all_pairs_dijkstra(G):
-    pass
+    """
+    run dijkstra from the all vertex of G:
+        found distance between all pairs of vertex
+        this method work only with positive edges
+
+    @params:
+        @G: graph
+
+    return (matrix of distances,matrix of pi)
+
+    efficiency:
+           if |E| * 0.75  < |V|^2: => O(V^2*log V)
+           if |E| * 0.75  > |V|^2: => O(V*E) = O(|V|^3)
+    """
+    D, PI = [], []
+    for v in G.V:
+        PI.append(list(dijkstra(G, v).values()))
+        D.append([v.data['key'] for v in G.V])
+    return D, PI
 
 
 def all_pairs_bellman_ford(G):
-    pass
+    """
+    run bellman ford from the all vertex of G:
+        found distance between all pairs of vertex
+        this method work also with negative edges
+
+    @params:
+       @G: graph
+
+    return: (matrix of distances,matrix of pi)
+
+    efficiency: O(|V|*|E|*|V|) = O(|E||V|^2)
+    """
+    D, PI = [], []
+    for v in G.V:
+        PI.append(list(bellman_ford(G, v).values()))
+        D.append([v.data['key'] for v in G.V])
+    return D, PI
 
 
 def all_pairs_dynamic_slow(G):
-    pass
+    """
+    dynamic algorithm (=slow version):
+        found distance between all pairs of vertex
+        this method work also with negative edges
+
+    @params:
+        @G: graph
+
+    return: (matrix of distances,matrix of pi)
+
+    the algorithm:
+        In any iteration the algorithm expand the all shorted path with +1 edge
+        so max iterations in the external loop will be |V|
+
+    efficiency: O(|V|^4)
+    """
+    D, PI = init_all_pairs(G)
+    W = D
+    for i in range(2, len(G.V) - 1):
+        expand(D, W, PI)
+    return D, PI
 
 
 def all_pairs_dynamic_fast(G):
-    pass
+    """
+    dynamic algorithm (=fast version):
+        found distance between all pairs of vertex
+        this method work also with negative edges
+
+    the algorithm:
+        In any iteration the algorithm expand the all shorted path *2
+        so max iterations in the external loop will be log|V|
+
+    @params:
+        @G: graph
+
+    return: (matrix of distances,matrix of pi)
+
+    efficiency: O(|V|^3*log|V|)
+    """
+    D, PI = init_all_pairs(G)
+    m = 1
+    while m < len(G.V) - 1:
+        expand(D, D, PI)
+        m *= 2
+    return D, PI
+
+
+def expand(D, W, PI):
+    """
+    expand the short path for all pairs
+    """
+    for i in range(len(G.V)):
+        for j in range(len(G.V)):
+            for k in range(len(G.V)):
+                if D[i][k] + W[k][j] < D[i][j]:
+                    D[i][j], PI[i][j] = D[i][k] + W[k][j], PI[k][j]
+
+
+def init_all_pairs(G):
+    D, PI = [[float('inf') for v in G.V] for v in G.V], [[None for v in G.V] for v in G.V]
+    for i, v in zip(range(len(G.V)), G.V):
+        v.data = {'i': i}
+    for v in G.V:
+        D[v.data['i']][v.data['i']] = 0
+        for e in v.edges:
+            D[v.data['i']][e.to.data['i']], PI[v.data['i']][e.to.data['i']] = e.weight, v
+    return D, PI
 
 
 def johnson(G):
@@ -146,8 +267,8 @@ def johnson(G):
 
 
 if __name__ == '__main__':
-    V = [Vertex(name=str(i)) for i in range(6)]
-    V[0].name, V[1].name, V[2].name, V[3].name, V[4].name, V[5].name = 'a', 'b', 'c', 'd', 'e', 'f'
+    V = [Vertex(name=str(i)) for i in range(8)]
+    V[1].name, V[2].name, V[3].name, V[4].name, V[5].name, V[6].name = '1', '2', '3', '4', '5', '6'
     # r = Edge(from_=V[0], to=V[1], weight=3)
     # G = GraphNotAimed(V=V)
     # G.connect(from_=V[0], to=V[1], weight=4)
@@ -175,12 +296,36 @@ if __name__ == '__main__':
     # print([v.data['key'] for v in G.V])
     # print(pi.values())
     G = Graph()
-    G.connect(from_=V[0], to=V[1], weight=2)
+    for i in range(1, 7):
+        G.V.append(V[i])
     G.connect(from_=V[1], to=V[2], weight=4)
-    G.connect(from_=V[2], to=V[3], weight=2)
-    G.connect(from_=V[3], to=V[4], weight=6)
-    G.connect(from_=V[4], to=V[5], weight=2)
-    G.connect(from_=V[0], to=V[2], weight=2)
-    pi = dag(G, V[0])
-    print([v.data['key'] for v in G.V])
-    print(pi.values())
+    G.connect(from_=V[2], to=V[3], weight=6)
+    G.connect(from_=V[2], to=V[5], weight=16)
+    G.connect(from_=V[2], to=V[6], weight=20)
+    G.connect(from_=V[3], to=V[5], weight=5)
+    G.connect(from_=V[4], to=V[1], weight=2)
+    G.connect(from_=V[4], to=V[2], weight=8)
+    G.connect(from_=V[5], to=V[1], weight=7)
+    G.connect(from_=V[5], to=V[4], weight=9)
+    G.connect(from_=V[5], to=V[6], weight=7)
+    G.connect(from_=V[6], to=V[3], weight=8)
+
+    # print(np.array([floyd_warshall(G)]))
+    # print('-------------------')
+    # print(np.array([all_pairs_dijkstra(G)]))
+    D, PI = floyd_warshall(G)
+    D_, PI_ = all_pairs_dijkstra(G)
+    D_1, PI_1 = all_pairs_bellman_ford(G)
+    D_2, PI_2 = all_pairs_dynamic_slow(G)
+    D_3, PI_3 = all_pairs_dynamic_fast(G)
+    print(np.array_equal([D, PI], [D_, PI_]))
+    print(np.array_equal([D, PI], [D_1, PI_1]))
+    print(np.array_equal([D, PI], [D_2, PI_2]))
+    print(np.array_equal([D, PI], [D_3, PI_3]))
+
+    # print(np.array([D, PI], [D_3, PI_3]))
+
+    # dijkstra(G, G.V[1])
+    # pi = dag(G, V[0])
+    # print([v.data['key'] for v in G.V])
+    # print(pi.values())

@@ -101,9 +101,13 @@ class BinaryHeapPrim(BinaryHeap):
     """
 
     def __init__(self, arr: [Vertex] = None, compare=max, key=None) -> None:
+        if arr:
+            for v, i in zip(arr, range(len(arr))):
+                if v.data:
+                    v.data['i'] = i
+                else:
+                    v.data = {'i': i}
         super().__init__(arr, compare, key)
-        for v, i in zip(self.arr, range(len(self.arr))):
-            v.data['i'] = i
 
     # efficiency: O(log n)
     def heapify_up(self, i):
