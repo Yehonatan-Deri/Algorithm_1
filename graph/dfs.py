@@ -5,6 +5,15 @@ from typing import Union, Tuple
 
 def dfs(G: Graph, s=None) -> Tuple[dict, dict, dict]:
     """
+    dfs algorithm
+
+    @param:
+        @G: graph
+        @s: vertex to start from , by default is G.V[0]
+
+    return:
+        return (pi, d, f) => (dict of pi, dict of enter time, dict of exit time)
+
     efficiency: O(V+E)
     """
     time = 0
@@ -28,12 +37,19 @@ def dfs(G: Graph, s=None) -> Tuple[dict, dict, dict]:
     return pi, d, f
 
 
-def search_circle(G: Graph) -> Union[bool, dict]:  # -> tuple(dict, dict, dict)
+def search_circle(G: Graph) -> Union[bool, dict]:
     """
     search circle with dfs
-    return: dict of exit time if circle not found or False if circle found
+
+    @param:
+        @G: graph
+
+    return:
+        return: dict of exit time if circle not found or False if circle found
+
     efficiency: O(V+E)
     """
+
     time, circle = 0, False
     color, f = {v: 'white' for v in G.V}, {}
 
@@ -63,9 +79,15 @@ def search_circle(G: Graph) -> Union[bool, dict]:  # -> tuple(dict, dict, dict)
 def forest(G, v=None):
     """
     Classification of the edges in G:
+        using dfs
 
     param:
-        v: vertice to start bfs , by default is G.V[0]
+        @G: graph
+        @v: vertex to start dfs , by default is G.V[0]
+
+    return:
+        return_edge, cross_edge, forest_edge, forward_edge, dict of pi, dict of enter time, dict of exit time
+
     efficiency: O(V+E)
     """
     v = v if v else V[0]

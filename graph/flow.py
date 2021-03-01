@@ -10,5 +10,9 @@ def flow_bfs(G):
     pass
 
 
-def paires(G):
+def pairs(G):
+    pass
+
+
+if __name__ == '__main__':
     pass
