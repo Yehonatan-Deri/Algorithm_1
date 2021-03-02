@@ -113,9 +113,10 @@ def forest(G, v=None):
         color[v] = 'black'
         time, f[v] = time + 1, time + 1
 
-    # for v in G.V:
-    #     if color[v] == 'white':
     dfs_visit(v)
+    for v in G.V:
+        if color[v] == 'white':
+            dfs_visit(v)
     return return_edge, cross_edge, forest_edge, forward_edge, pi, d, f
 
 

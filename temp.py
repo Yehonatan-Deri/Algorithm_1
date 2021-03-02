@@ -21,4 +21,10 @@ a = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
 
 # print(np.array(a)[])
 from Algorithm_1.graph.distance import *
+
 # _init([],9)
+d = {"a": 1, "b": 2, 'c': 3, 'd': 4}
+d['f'] = 5
+
+print(d)
+# print(dict([(val, key) for key, val in d.items()]))

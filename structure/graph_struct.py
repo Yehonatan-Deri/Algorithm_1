@@ -4,8 +4,8 @@ from typing import List
 
 class Edge:
 
-    def __init__(self, from_, to, weight=1) -> None:
-        self.from_, self.to, self.weight = from_, to, weight
+    def __init__(self, from_, to, weight=1, data=None) -> None:
+        self.from_, self.to, self.weight, self.data = from_, to, weight, data
 
     def __str__(self):
         return f'({self.from_.name}->{self.to.name},w={self.weight})'
@@ -27,6 +27,10 @@ class Vertex:
             if e.to not in self.Adj:
                 self.Adj.append(e.to)
                 self.edges.append(e)
+            else:
+                for e_ in self.edges:
+                    if e_.to == e.v:
+                        e_.weight = weight
         elif v:
             if v is self:
                 return
@@ -34,6 +38,11 @@ class Vertex:
                 self.Adj.append(v)
                 e = Edge(self, v, weight=weight)
                 self.edges.append(e)
+            else:
+                for e_ in self.edges:
+                    if e_.to == v:
+                        e_.weight = weight
+                return None
         return e
 
     def disconnect(self, v):
@@ -62,7 +71,7 @@ class Graph:
     def connect(self, from_: Vertex = None, to: Vertex = None, weight=1, e: Edge = None):
         if e:
             from_, to, weight = e.from_, e.to, e.weight
-        elif from_ and to and from_ is not to:
+        if from_ and to and from_ is not to:
             e = from_.connect(v=to, weight=weight)
         else:
             print('ERROR : must pass @from_,@to OR @e parameters')
