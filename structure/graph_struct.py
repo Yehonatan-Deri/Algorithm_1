@@ -135,7 +135,7 @@ from typing import List, Dict, Any
 class Edge:
 
     def __init__(self, from_, to, weight=1, data=None) -> None:
-        self.from_, self.to, self.weight, self.data = from_, to, weight, data
+        self.from_, self.to, self.weight, self.data = from_, to, weight, data if data else {}
 
     def __str__(self):
         return f'({self.from_.name}->{self.to.name},w={self.weight})'
