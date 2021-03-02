@@ -31,7 +31,7 @@ def dijkstra(G, s):
     pi = {v: None for v in G.V}
     _init(G, s)
     key = lambda v: v.data['key']
-    Q = BinaryHeapPrim(arr=G.V, compare=min, key=key) if struct == 'heap' else [v for v in G.V]
+    Q = BinaryHeapPrim(arr=list(G.V.keys()), compare=min, key=key) if struct == 'heap' else [v for v in G.V]
 
     while struct == 'heap' and Q.arr or struct == 'array' and Q:
         v, v.data['in heap'] = Q.extract() if struct == 'heap' else Q.pop(Q.index(min(Q, key=key))), False
@@ -255,10 +255,14 @@ def expand(D, W, PI):
 def init_all_pairs(G):
     D, PI = [[float('inf') for v in G.V] for v in G.V], [[None for v in G.V] for v in G.V]
     for i, v in zip(range(len(G.V)), G.V):
-        v.data = {'i': i}
+        v.data['i'] = i  # {'i': i}
     for v in G.V:
         D[v.data['i']][v.data['i']] = 0
+        # print(v.edges)
         for e in v.edges:
+            # print(e.from_)
+            # print(e.to)
+            # print(e.weight)
             D[v.data['i']][e.to.data['i']], PI[v.data['i']][e.to.data['i']] = e.weight, v
     return D, PI
 
@@ -287,6 +291,7 @@ def johnson(G):
            if |E| * 0.75  > |V|^2: => O(V*E) = O(|V|^3)
     """
     s = Vertex(name='s')
+    G.V[s] = None
     for v in G.V:
         if v is not s:
             G.connect(from_=s, to=v, weight=0)
@@ -300,30 +305,32 @@ def johnson(G):
     D, PI = all_pairs_dijkstra(G)
     for i in range(len(D)):
         for j in range(len(D[i])):
-            D[i][j] -= (h[G.V[i]] - h[G.V[j]])
+            D[i][j] -= (h[list(G.V.keys())[i]] - h[list(G.V.keys())[j]])
+    for e in list(s.edges.keys()):
+        G.disconnect(e=e)
+    del G.V[s]
     for e in G.E:
-        if e.from_ is s:
-            G.disconnect(e=e)
-        else:
-            e.weight -= (h[e.from_] - h[e.to])
+        e.weight -= (h[e.from_] - h[e.to])
 
     return list(np.array(D)[:-1, :-1]), list(np.array(PI)[:-1, :-1])
 
 
 if __name__ == '__main__':
     V = [Vertex(name=str(i)) for i in range(8)]
-    V[1].name, V[2].name, V[3].name, V[4].name, V[5].name, V[6].name = '1', '2', '3', '4', '5', '6'
+    # V[0].name, V[1].name, V[2].name, V[3].name, V[4].name, V[5].name, V[6].name = '0', '1', '2', '3', '4', '5', '6'
     # r = Edge(from_=V[0], to=V[1], weight=3)
-    # G = GraphNotAimed(V=V)
-    # G.connect(from_=V[0], to=V[1], weight=4)
-    # G.connect(from_=V[0], to=V[4], weight=3)
-    # G.connect(from_=V[0], to=V[3], weight=2)
-    # G.connect(from_=V[1], to=V[2], weight=5)
-    # G.connect(from_=V[1], to=V[4], weight=4)
-    # G.connect(from_=V[1], to=V[5], weight=6)
-    # G.connect(from_=V[2], to=V[5], weight=1)
-    # G.connect(from_=V[3], to=V[4], weight=6)
-    # G.connect(from_=V[4], to=V[5], weight=8)
+    G = GraphNotAimed()
+    for i in range(8):
+        G.V[V[i]] = None
+    G.connect(from_=V[0], to=V[1], weight=4)
+    G.connect(from_=V[0], to=V[4], weight=3)
+    G.connect(from_=V[0], to=V[3], weight=2)
+    G.connect(from_=V[1], to=V[2], weight=5)
+    G.connect(from_=V[1], to=V[4], weight=4)
+    G.connect(from_=V[1], to=V[5], weight=6)
+    G.connect(from_=V[2], to=V[5], weight=1)
+    G.connect(from_=V[3], to=V[4], weight=6)
+    G.connect(from_=V[4], to=V[5], weight=8)
     # ---------------------
     # G.connect(from_=V[0], to=V[2], weight=8)
     # G.connect(from_=V[0], to=V[5], weight=8)
@@ -331,52 +338,62 @@ if __name__ == '__main__':
     # G.connect(from_=V[1], to=V[3], weight=8)
     # G.connect(from_=V[2], to=V[3], weight=8)
     # G.connect(from_=V[2], to=V[4], weight=8)
-    # pi = dijkstra(G, G.V[0])
-    # print('------------------------')
+    s = list(G.V.keys())[0]
+    pi1 = dijkstra(G, s)
+    print('------------------------')
     # print([v.data['key'] for v in G.V])
     # print(pi.values())
-    # pi = bellman_ford(G, G.V[0])
+    pi2 = bellman_ford(G, s)
+    pi3 = bellman_ford(G, s)
+    pi4 = dag(G, s)
+    print('dijkstra:', np.array_equal(pi1, pi2))
+    print('bellman_ford:', np.array_equal(pi1, pi3))
+    if pi4:
+        print('dag:', np.array_equal(pi1, pi4))
+    print('--------------------  all pairs  ---------------------')
     # print('------------------------')
     # print([v.data['key'] for v in G.V])
     # print(pi.values())
     G = Graph()
+    V = [Vertex(name=str(i)) for i in range(8)]
     for i in range(1, 7):
-        G.V.append(V[i])
-    # G.connect(from_=V[1], to=V[2], weight=4)
-    # G.connect(from_=V[2], to=V[3], weight=6)
-    # G.connect(from_=V[2], to=V[5], weight=16)
-    # G.connect(from_=V[2], to=V[6], weight=20)
-    # G.connect(from_=V[3], to=V[5], weight=5)
-    # G.connect(from_=V[4], to=V[1], weight=2)
-    # G.connect(from_=V[4], to=V[2], weight=8)
-    # G.connect(from_=V[5], to=V[1], weight=7)
-    # G.connect(from_=V[5], to=V[4], weight=9)
-    # G.connect(from_=V[5], to=V[6], weight=7)
-    # G.connect(from_=V[6], to=V[3], weight=8)
+        G.V[V[i]] = None
+    G.connect(from_=V[1], to=V[2], weight=4)
+    G.connect(from_=V[2], to=V[3], weight=6)
+    G.connect(from_=V[2], to=V[5], weight=16)
+    G.connect(from_=V[2], to=V[6], weight=20)
+    G.connect(from_=V[3], to=V[5], weight=5)
+    G.connect(from_=V[4], to=V[1], weight=2)
+    G.connect(from_=V[4], to=V[2], weight=8)
+    G.connect(from_=V[5], to=V[1], weight=7)
+    G.connect(from_=V[5], to=V[4], weight=9)
+    G.connect(from_=V[5], to=V[6], weight=7)
+    G.connect(from_=V[6], to=V[3], weight=8)
 
     # ---------------- all pairs -------------------------------
-    G.connect(from_=V[1], to=V[2], weight=-1)
-    G.connect(from_=V[2], to=V[3], weight=6)
-    G.connect(from_=V[2], to=V[5], weight=-3)
-    G.connect(from_=V[2], to=V[6], weight=20)
-    G.connect(from_=V[3], to=V[5], weight=15)
-    G.connect(from_=V[4], to=V[1], weight=-2)
-    G.connect(from_=V[4], to=V[2], weight=8)
-    G.connect(from_=V[5], to=V[1], weight=54)
-    G.connect(from_=V[5], to=V[4], weight=10)
-    G.connect(from_=V[5], to=V[6], weight=-1)
-    G.connect(from_=V[6], to=V[3], weight=8)
+    # G.connect(from_=V[1], to=V[2], weight=-1)
+    # G.connect(from_=V[2], to=V[3], weight=6)
+    # G.connect(from_=V[2], to=V[5], weight=-3)
+    # G.connect(from_=V[2], to=V[6], weight=20)
+    # G.connect(from_=V[3], to=V[5], weight=15)
+    # G.connect(from_=V[4], to=V[1], weight=-2)
+    # G.connect(from_=V[4], to=V[2], weight=8)
+    # G.connect(from_=V[5], to=V[1], weight=54)
+    # G.connect(from_=V[5], to=V[4], weight=10)
+    # G.connect(from_=V[5], to=V[6], weight=-1)
+    # G.connect(from_=V[6], to=V[3], weight=8)
+
     D, PI = floyd_warshall(G)
     D_, PI_ = all_pairs_dijkstra(G)
     D_1, PI_1 = all_pairs_bellman_ford(G)
     D_2, PI_2 = all_pairs_dynamic_slow(G)
     D_3, PI_3 = all_pairs_dynamic_fast(G)
     D_4, PI_4 = johnson(G)
-    print(np.array_equal([D, PI], [D_, PI_]))
-    print(np.array_equal([D, PI], [D_1, PI_1]))
-    print(np.array_equal([D, PI], [D_2, PI_2]))
-    print(np.array_equal([D, PI], [D_3, PI_3]))
-    print(np.array_equal([D, PI], [D_4, PI_4]))
-    print(np.array([D_4, PI_4]))
+    print('floyd_warshall:', np.array_equal([D, PI], [D_, PI_]))
+    print('all_pairs_dijkstra:', np.array_equal([D, PI], [D_1, PI_1]))
+    print('all_pairs_bellman_ford:', np.array_equal([D, PI], [D_2, PI_2]))
+    print('all_pairs_dynamic_slow:', np.array_equal([D, PI], [D_3, PI_3]))
+    print('all_pairs_dynamic_fast:', np.array_equal([D, PI], [D_4, PI_4]))
+    print('johnson:', np.array_equal([D, PI],[D_4, PI_4]))
     print('------------------------------------')
     print(np.array([D, PI]))

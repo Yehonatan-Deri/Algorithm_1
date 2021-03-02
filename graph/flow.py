@@ -1,8 +1,49 @@
 from Algorithm_1.structure.graph_struct import Graph, GraphNotAimed, Vertex, Edge
 import copy
+import math
+
+def dfs(G, s, t, theta=None):
+    pi_edges, color = {v: None for v in G.V}, {v: 'white' for v in G.V}
+
+    def dfs_visit(v):
+        color[v] = 'gray'
+        for e in v.edges:
+            if color[e.to] == 'white':  # and e.weight > 0
+                if theta and e.weight < theta:
+                    continue
+                pi_edges[e.to] = e
+                return True if e.to == t else dfs_visit(e.to)
+        return False
+
+    return pi_edges if dfs_visit(s) else False
 
 
-def ford_fulkerson(G, s, t, func=None):
+def bfs(G, s, t, theta=None):
+    """
+    @params:
+        @G: graph
+        @s: vertex to start bfs
+        @t: vertex to end bfs
+
+    efficiency: O(V+E)
+    """
+    pi_edges, color, Q = {v: None for v in G.V}, {v: 'white' for v in G.V}, [s]
+
+    while len(Q):
+        v = Q.pop(0)
+        for e in v.edges:
+            if color[e.to] == 'white':
+                if theta and e.weight < theta:
+                    continue
+                pi_edges[e.to], color[e.to] = e, 'gray'
+                if e.to == t:
+                    return pi_edges
+                Q.append(e.to)
+
+    return False
+
+
+def ford_fulkerson(G, s, t, func=dfs):
     """
     ford fulkerson algorithm:
         found max flow in the graph from s to t
@@ -24,33 +65,24 @@ def ford_fulkerson(G, s, t, func=None):
         if func is bfs: O(|V||E|^2)
         if func is scaling: O(log(C_max)*|E|)
     """
-
-    def restore_way(pi_edges):
-        add_way, min_flow = [pi_edges[t]], pi_edges[t].weight
-        while add_way[0].from_ != s:
-            add_way.insert(0, pi_edges[add_way[0].from_])
-            min_flow = min(min_flow, add_way[0].weight)
-
-        return add_way, min_flow
-
-    G_r, s, t = init(G, s, t)
-    # G_r = G
+    G_r, dic = init(G, s, t)
+    s, t = dic[s], dic[t]
     while True:
-        way = dfs(G_r, s, t)
+        way = func(G_r, s, t)
         if way:
-            add_way, min_flow = restore_way(way)
+            add_way, min_flow = restore_way(way, s, t)
             calc_G_r(G_r, add_way, min_flow)
         else:
             break
 
     # G_max=
+    for
     print(G_r)
 
 
 def init(G, s, t):
-    # G_r = copy.deepcopy(G)
     G_r = Graph()
-    V = [Vertex(name=v.name + '(r)') for v in G.V]
+    V = [Vertex(name=v.name) for v in G.V]
     dic = {}
     for v1, v2 in zip(G.V, V):
         dic[v1] = v2
@@ -58,7 +90,7 @@ def init(G, s, t):
     for e in G.E:
         G_r.connect(from_=dic[e.from_], to=dic[e.to], weight=e.weight)
 
-    return G_r, dic[s], dic[t]
+    return G_r, dic
 
 
 def calc_G_r(G_r, add_way, min_flow):
@@ -68,82 +100,31 @@ def calc_G_r(G_r, add_way, min_flow):
         else:
             e.weight -= min_flow
         if e.from_ in e.to.Adj:
-            for e_ in e.to.edges:
-                if e_.to == e.from_:
-                    e_.weight += min_flow
-                    break
+            e.to.Adj[e.from_].weight += min_flow
         else:
-            print(e.from_ in G.V)
             G_r.connect(from_=e.to, to=e.from_, weight=min_flow)
 
 
-def dfs(G, s, t):
-    pi_edges, color = {v: None for v in G.V}, {v: 'white' for v in G.V}
-
-    def dfs_visit(v):
-        color[v] = 'gray'
-        for e in v.edges:
-            if color[e.to] == 'white':  # and e.weight > 0
-                pi_edges[e.to] = e
-                if e.to == t:
-                    return True
-                return True if e.to == t else dfs_visit(e.to)
-        return False
-
-    return pi_edges if dfs_visit(s) else False
-
-
-def bfs(G, s, t):
-    """
-    @params:
-        @G: graph
-        @s: vertex to start bfs
-        @t: vertex to end bfs
-
-    efficiency: O(V+E)
-    """
-    pi, color, Q = {v: None for v in G.V}, {v: 'white' for v in G.V}, [s if s else G.V[0]]
-
-    while len(Q):
-        v = Q.pop(0)
-        for u in v.Adj:
-            if color[u] == 'white':
-                pi[u], color[u] = v, 'gray'
-                if u == t:
-                    return pi
-                Q.append(u)
-
-    return False
 
 
 def scaling(G, s, t):
-    C_max = max(G.E, key=lambda e: e.weight)
-    theta = f(C_max)
+    C_max = max(G.E, key=lambda e: e.weight).weight
+    theta = 2 ** int(math.log(C_max, 2))
+    G_r, dic = init(G, s, t)
+    s, t = dic[s], dic[t]
     while theta >= 1:
-        G_r = calc_G_scalling(G, theta)
         while True:
-            way = dfs(G_r, s, t)
+            way = dfs(G_r, s, t, theta=theta)
             if way:
-                add_way, min_flow = restore_way(way)
+                add_way, min_flow = restore_way(way, s, t)
                 calc_G_r(G_r, add_way, min_flow)
             else:
                 theta /= 2
+                # print(G_r)
                 break
 
 
-def calc_G_scalling(G, theta):
-    G_ = init_(G)
-    for e in G:
-        if e.weight < theta:
-            G_.disconnect(e=e)
-    return G_
-
-
-def f(C_max):
-    return 3
-
-
-def restore_way(pi_edges, t, s):
+def restore_way(pi_edges, s, t):
     add_way, min_flow = [pi_edges[t]], pi_edges[t].weight
     while add_way[0].from_ != s:
         add_way.insert(0, pi_edges[add_way[0].from_])
@@ -166,10 +147,6 @@ def init_(G):
     return G_r
 
 
-def flow_bfs(G):
-    pass
-
-
 def pairs(G):
     pass
 
@@ -179,9 +156,8 @@ if __name__ == '__main__':
     V[0].name, V[1].name, V[2].name, V[3].name, V[4].name, V[5].name, V[6].name, V[7].name = \
         's', '1', '2', '3', '4', '5', '6', 't'
     G = Graph()
-    # G.V.append(V[:8])
     for i in range(8):
-        G.V.append(V[i])
+        G.V[V[i]] = None
     G.connect(from_=V[0], to=V[1], weight=3)
     G.connect(from_=V[0], to=V[2], weight=3)
     G.connect(from_=V[1], to=V[2], weight=1)
@@ -196,11 +172,26 @@ if __name__ == '__main__':
     G.connect(from_=V[5], to=V[7], weight=3)
     G.connect(from_=V[6], to=V[7], weight=3)
     ford_fulkerson(G, V[0], V[7])
-    # print(init(G))
+    print('--------------------  scalling  ------------------------')
+    V = [Vertex(name=str(i)) for i in range(6)]
+    V[0].name, V[1].name, V[2].name, V[3].name, V[4].name, V[5].name = 's', '1', '2', '3', '4', 't'
+    G = Graph()
+    # G.V.append(V[:8])
+    for i in range(6):
+        G.V[V[i]] = None
+    G.connect(from_=V[0], to=V[1], weight=25)
+    G.connect(from_=V[0], to=V[3], weight=20)
+    G.connect(from_=V[1], to=V[2], weight=20)
+    G.connect(from_=V[2], to=V[3], weight=15)
+    G.connect(from_=V[2], to=V[5], weight=16)
+    G.connect(from_=V[3], to=V[4], weight=25)
+    G.connect(from_=V[4], to=V[5], weight=30)
+    # G.connect(from_=V[3], to=V[5], weight=3)
+    # G.connect(from_=V[4], to=V[5], weight=2)
+    # G.connect(from_=V[4], to=V[6], weight=3)
+    # G.connect(from_=V[5], to=V[6], weight=3)
+    # G.connect(from_=V[5], to=V[7], weight=3)
+    # G.connect(from_=V[6], to=V[7], weight=3)
+    # ford_fulkerson(G, V[0], V[7])
+    print(scaling(G, V[0], V[5]))
     print(G)
-    # print(G)
-    # e = Edge(from_=V[0], to=V[1], weight=355)
-    # print(G)
-    # G.connect(e=e)
-    # G.connect(e=e)
-    # print(G)

@@ -180,10 +180,6 @@ class Vertex:
 
     def disconnect(self, v):
         self.edges.pop(self.Adj.pop(v, None), None)
-        # if v in self.Adj:
-        #     i = self.Adj.index(v)
-        #     self.Adj.remove(v)
-        #     del self.edges[i]
 
     def is_connect(self, v):
         return v in self.Adj
@@ -241,14 +237,12 @@ class Graph:
     # return new G' transpose graph
     def transpose(self):
         G = Graph()
-        # for v, i in zip(self.V, range(len(G.V))):
-        #     v.data['i'] = i
+
         V = {v: Vertex(name=v.name, data=copy.deepcopy(v.data)) for v in self.V.keys()}
         G.V = {v: None for v in V.values()}
         for e in self.E:
             G.connect(from_=V[e.to], to=V[e.from_], weight=e.weight)
-        # for v1, v2 in zip(self.V, G.V):
-        #     del v1.data['i'], v2.data['i']
+
         return G
 
     @property

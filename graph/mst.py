@@ -25,7 +25,7 @@ def prim(G, restore=False):
     pi = {v: None for v in G.V}
     for v in G.V:
         v.data = {'key': float('inf'), 'in heap': True}
-    G.V[0].data['key'] = 0
+    list(G.V.keys())[0].data['key'] = 0
     key = lambda v: v.data['key']
     Q = BinaryHeapPrim(arr=G.V, compare=min, key=key) if struct == 'heap' else [v for v in G.V]
 
@@ -168,7 +168,7 @@ if __name__ == '__main__':
     V = [Vertex(name=str(i)) for i in range(6)]
     V[0].name, V[1].name, V[2].name, V[3].name, V[4].name, V[5].name = 'a', 'b', 'c', 'd', 'e', 'f'
     # r = Edge(from_=V[0], to=V[1], weight=3)
-    G = GraphNotAimed(V=V)
+    G = GraphNotAimed(V={v: None for v in V})
     G.connect(from_=V[0], to=V[1], weight=4)
     G.connect(from_=V[0], to=V[4], weight=3)
     G.connect(from_=V[0], to=V[3], weight=2)
@@ -190,13 +190,4 @@ if __name__ == '__main__':
     print(prim(G, restore=True)[1])
     print(kruskal(G, restore=True))
     t = kruskal(G)
-    # w = 0
-    # for i in t:
-    #     w += i.weight
 
-    # G_ = Graph()
-    # print(type(G_) is type(G))
-    # print(type(G_) == type(G))
-    # print(isinstance(G, Graph))
-    # print(isinstance(G, GraphNotAimed))
-    # print(isinstance(G_, GraphNotAimed))
