@@ -116,8 +116,54 @@ def bfs(G, s, t):
     return False
 
 
-def scaling(G):
-    pass
+def scaling(G, s, t):
+    C_max = max(G.E, key=lambda e: e.weight)
+    theta = f(C_max)
+    while theta >= 1:
+        G_r = calc_G_scalling(G, theta)
+        while True:
+            way = dfs(G_r, s, t)
+            if way:
+                add_way, min_flow = restore_way(way)
+                calc_G_r(G_r, add_way, min_flow)
+            else:
+                theta /= 2
+                break
+
+
+def calc_G_scalling(G, theta):
+    G_ = init_(G)
+    for e in G:
+        if e.weight < theta:
+            G_.disconnect(e=e)
+    return G_
+
+
+def f(C_max):
+    return 3
+
+
+def restore_way(pi_edges, t, s):
+    add_way, min_flow = [pi_edges[t]], pi_edges[t].weight
+    while add_way[0].from_ != s:
+        add_way.insert(0, pi_edges[add_way[0].from_])
+        min_flow = min(min_flow, add_way[0].weight)
+
+    return add_way, min_flow
+
+
+def init_(G):
+    # G_r = copy.deepcopy(G)
+    G_r = Graph()
+    V = [Vertex(name=v.name + '(r)') for v in G.V]
+    dic = {}
+    for v1, v2 in zip(G.V, V):
+        dic[v1] = v2
+
+    for e in G.E:
+        G_r.connect(from_=dic[e.from_], to=dic[e.to], weight=e.weight)
+
+    return G_r
 
 
 def flow_bfs(G):
