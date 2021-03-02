@@ -8,7 +8,8 @@ def bfs(G: Graph, s=None) -> Tuple[dict, dict]:
         v: vertice to start bfs , by default is G.V[0]
     efficiency: O(V+E)
     """
-    pi, color, layer, Q = {v: None for v in G.V}, {v: 'white' for v in G.V}, {G.V[0]: 1}, [s if s else G.V[0]]
+    s = s if s else list(G.V.keys())[0]
+    pi, color, layer, Q = {v: None for v in G.V}, {v: 'white' for v in G.V}, {s: 1}, [s if s else G.V[0]]
 
     while len(Q):
         v = Q.pop(0)
@@ -33,8 +34,8 @@ def search_circle(G: GraphNotAimed, s=None):
 
     efficiency: O(V+E)
     """
-
-    pi, color, layer, Q = {v: None for v in G.V}, {v: 'white' for v in G.V}, {G.V[0]: 1}, [s if s else G.V[0]]
+    s = s if s else list(G.V.keys())[0]
+    pi, color, layer, Q = {v: None for v in G.V}, {v: 'white' for v in G.V}, {s: 1}, [s]
 
     while len(Q):
         v = Q.pop(0)
@@ -57,8 +58,8 @@ def two_sided_graph(G: GraphNotAimed):
         and this append only if there is a edge between two vertices in the same layer
     efficiency: O(V+E)
     """
-
-    pi, color, layer, Q = {v: None for v in G.V}, {v: 'white' for v in G.V}, {G.V[0]: 1}, [G.V[0]]
+    s = list(G.V.keys())[0]
+    pi, color, layer, Q = {v: None for v in G.V}, {v: 'white' for v in G.V}, {s: 1}, [s]
 
     while len(Q):
         v = Q.pop(0)
@@ -76,7 +77,7 @@ def two_sided_graph(G: GraphNotAimed):
 if __name__ == '__main__':
     V = [Vertex(name=str(i)) for i in range(5)]
     # r = Edge(from_=V[0], to=V[1], weight=3)
-    G = GraphNotAimed(V=V)
+    G = GraphNotAimed(V={v: None for v in V})
     G.connect(from_=V[1], to=V[0], weight=1)
     G.connect(from_=V[2], to=V[1], weight=1)
     G.connect(from_=V[0], to=V[3])

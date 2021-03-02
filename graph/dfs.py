@@ -139,21 +139,23 @@ def sccg(G: Graph):
     efficiency: O(V+E)
     """
     _, _, f = dfs(G)
-    f = [(item[0], item[1], G.V.index(item[0])) for item in f.items()]
+    f = [(item[0], item[1]) for item in f.items()]
     f.sort(key=lambda item: item[1], reverse=True)
+    for v, i in zip(f, range(len(G.V))):
+        v[0].data['i'] = i
     G_t = G.transpose()
 
     def dfs_visit(v: Vertex):
         color[v] = 'gray'
         for u in v.Adj:
             if color[u] == 'white':
-                tie_well[len(tie_well) - 1].append(G.V[G_t.V.index(u)])
+                tie_well[len(tie_well) - 1].append(f[u.data['i']][0])
                 dfs_visit(u)
 
-    color, tie_well, index_order = {v: 'white' for v in G_t.V}, [], [item[2] for item in f]
-    for v in np.array(G_t.V)[index_order]:
+    color, V, tie_well = {v: 'white' for v in G_t.V}, sorted(G_t.V.keys(), key=lambda v: v.data['i']), []
+    for v in V:
         if color[v] == 'white':
-            tie_well.append([G.V[G_t.V.index(v)]])
+            tie_well.append([f[v.data['i']][0]])
             dfs_visit(v)
 
     return tie_well
@@ -180,19 +182,16 @@ def tie_well_graph(G):
     efficiency: O(V+E)
     """
     tie_well = sccg(G)
-    scc = {}
-    for v_group, i in zip(tie_well, range(len(tie_well))):
-        for v in v_group:
-            scc[v] = i
     G_scc = Graph()
 
-    for v_group in tie_well:
-        v = Vertex(name=str(v_group), data=v_group)
-        G_scc.V.append(v)
-    for v, i in scc.items():
-        for e in v.edges:
-            if e.to not in tie_well[i]:
-                G_scc.connect(from_=G_scc.V[i], to=G_scc.V[scc[e.to]], weight=e.weight)
+    for v_group, i in zip(tie_well, range(len(tie_well))):
+        v = Vertex(name=str(v_group), data={'group': v_group})
+        for v1 in v_group:
+            v1.data['group'] = v
+    for v in G.V:
+        for u in v.Adj:
+            if v.data['group'] != u.data['group']:
+                G_scc.connect(from_=v.data['group'], to=u.data['group'], weight=v.Adj[u].weight)
 
     return G_scc
 
@@ -200,7 +199,7 @@ def tie_well_graph(G):
 if __name__ == '__main__':
     V = [Vertex(name=str(i)) for i in range(5)]
     # r = Edge(from_=V[0], to=V[1], weight=3)
-    G = Graph(V=V)
+    G = Graph(V={v: None for v in V})
     G.connect(from_=V[1], to=V[2], weight=1)
     G.connect(from_=V[2], to=V[1], weight=1)
     # G.connect(e=r)
@@ -208,9 +207,12 @@ if __name__ == '__main__':
     G.connect(from_=V[4], to=V[0])
     G.connect(from_=V[3], to=V[0])
     G.connect(from_=V[1], to=V[4])
-
-    # print(G)
-    # topology(G)
-    # print(topology(G))
-    # print(sccg(G))
+    dfs(G, list(G.V.keys())[0])
+    search_circle(G)
+    forest(G, list(G.V.keys())[0])
+    # print(G.V.keys()[0])
+    topology(G)
+    print(topology(G))
+    print(sccg(G))
     print(leaves(G))
+    print(tie_well_graph(G))
