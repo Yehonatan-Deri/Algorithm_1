@@ -1,4 +1,5 @@
 from Algorithm_1.structure.graph_struct import Graph, GraphNotAimed, Vertex
+# from Algorithm_1.graph import dfs
 import math
 
 
@@ -25,10 +26,13 @@ def dfs(G, s, t, theta=None):
                 if theta and e.weight < theta:
                     continue
                 pi_edges[e.to] = e
-                return True if e.to == t else dfs_visit(e.to)
-        return False
+                if e.to == t:
+                    return
+                else:
+                    dfs_visit(e.to)
 
-    return pi_edges if dfs_visit(s) else False
+    dfs_visit(s)
+    return pi_edges if pi_edges[t] else False
 
 
 def bfs(G, s, t, theta=None):
@@ -81,14 +85,12 @@ def ford_fulkerson(G, s, t, func=dfs):
         if func is bfs: O(|V||E|^2)
     """
     G_r, dic = init_G_r(G)
-    s, t = dic[s], dic[t]
-    while True:
+    s, t, way = dic[s], dic[t], True
+    while way:
         way = func(G_r, s, t)
         if way:
             add_way, min_flow = restore_way(way, s, t)
             calc_G_r(G_r, add_way, min_flow)
-        else:
-            break
 
     return restore_max_flow(G, dic)
 
@@ -209,8 +211,41 @@ def restore_max_flow(G, dic):
     return flow
 
 
-def pairs(G: GraphNotAimed):
-    pass
+def max_pairs(V1, V2, func=dfs):
+    """
+    ford fulkerson algorithm For maximum pairing:
+
+
+    @params:
+        @G: graph
+        @V1,V2: groups of vertex for finding mach
+        @func: function to use for find adding way by default is dfs, can be bfs
+
+
+    return: list of vertexes pairs for max pairing (=Original vertices)
+
+    efficiency: O(|E|*n) where n is max pairing, in worst case n=|V1|
+    """
+    G_pairs = Graph()
+    dic1, dic2 = {v: Vertex(name=v.name) for v in V1}, {v: Vertex(name=v.name) for v in V2}
+    dic, s, t = {**dic1, **dic2}, Vertex(name='s'), Vertex(name='t')
+    dic = {dic[k]: k for k in dic}
+    for v in dic1:
+        G_pairs.connect(from_=s, to=dic1[v], weight=1)
+    for v in dic2:
+        G_pairs.connect(from_=dic2[v], to=t, weight=1)
+    for v in dic1:
+        for u in v.Adj:
+            if u in dic2:
+                G_pairs.connect(from_=dic1[v], to=dic2[u], weight=1)
+
+    max_flow_ = ford_fulkerson(G_pairs, s, t, func=func)
+    pairs = []
+    for e in max_flow_:
+        if max_flow_[e] and e.from_ != s and e.to != t:
+            # pairs.append(dic[e.from_].Adj[dic[e.to]])
+            pairs.append((dic[e.from_], dic[e.to]))
+    return pairs
 
 
 if __name__ == '__main__':
@@ -250,3 +285,15 @@ if __name__ == '__main__':
     G.connect(from_=V[4], to=V[5], weight=30)
     print(scaling(G, V[0], V[5], func=dfs))
     print(scaling(G, V[0], V[5], func=bfs))
+    print('--------------------  max pairs  ------------------------')
+    V1, V2 = [Vertex(name='v' + str(i)) for i in range(5)], [Vertex(name='u' + str(i)) for i in range(5)]
+    V1[0].connect(v=V2[0])
+    V1[0].connect(v=V2[1])
+    V1[1].connect(v=V2[2])
+    V1[2].connect(v=V2[2])
+    V1[2].connect(v=V2[4])
+    V1[3].connect(v=V2[1])
+    V1[3].connect(v=V2[3])
+    V1[4].connect(v=V2[2])
+    V1[4].connect(v=V2[4])
+    print(max_pairs(V1, V2))

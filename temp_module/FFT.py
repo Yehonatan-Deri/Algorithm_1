@@ -1,5 +1,5 @@
 # import pip._vendor.msgpack.fallback
-from pip._vendor.msgpack.fallback import xrange
+# from pip._vendor.msgpack.fallback import xrange
 
 
 def naive_match(T, P):

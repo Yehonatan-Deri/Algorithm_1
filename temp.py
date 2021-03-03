@@ -24,7 +24,8 @@ from Algorithm_1.graph.distance import *
 
 # _init([],9)
 d = {"a": 1, "b": 2, 'c': 3, 'd': 4}
-d1 = {'c': 6}
-
-# print(d.)
-# print(dict([(val, key) for key, val in d.items()]))
+d1 = {'e': 6}
+d2 = {**d, **d1}
+print(d2)
+for x in d2:
+    print(type(x))
