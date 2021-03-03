@@ -1,5 +1,4 @@
-from Algorithm_1.structure.graph_struct import Graph, GraphNotAimed, Vertex, Edge
-import copy
+from Algorithm_1.structure.graph_struct import Graph, GraphNotAimed, Vertex
 import math
 
 
@@ -210,7 +209,7 @@ def restore_max_flow(G, dic):
     return flow
 
 
-def pairs(G):
+def pairs(G: GraphNotAimed):
     pass
 
 
