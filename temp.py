@@ -29,3 +29,8 @@ d2 = {**d, **d1}
 print(d2)
 for x in d2:
     print(type(x))
+a = np.array([6, 7, 8, 9, 0, 0])
+
+print(a[a > 0])
+a = [6, 7, 8, 9, 0, 0]
+print(a[4 == 9])
