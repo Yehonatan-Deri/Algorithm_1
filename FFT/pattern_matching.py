@@ -109,11 +109,11 @@ def PI(P):
     :return
         pi: list that contain for each char in P the corresponding max length
 
-    :complexity:
+    :complexity: O(n)
     """
     n, pi, k, q = len(P), [0], 0, 1
 
-    while q <= n - 1:
+    while q < n:
         if P[k] == P[q]:
             k, q = k + 1, q + 1
             pi.append(k)
@@ -139,3 +139,4 @@ if __name__ == '__main__':
     print(np.array_equal(mach3, mach2))
     P = 'abaabcabaaba'
     pi = PI(P)
+    print(PI('abaabab'))
